@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj": {}
+    "c:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj": {}
   },
   "projects": {
-    "C:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj": {
+    "c:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj",
+        "projectUniqueName": "c:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj",
         "projectName": "DutyAssignment",
-        "projectPath": "C:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj",
+        "projectPath": "c:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\DutyAssignment.csproj",
         "packagesPath": "C:\\Users\\MONSTER\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\obj\\",
+        "outputPath": "c:\\Users\\MONSTER\\Desktop\\projects\\DutyAssignment\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\MONSTER\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,6 +43,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
               "version": "[8.0.8, )"

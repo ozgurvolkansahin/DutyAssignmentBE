@@ -47,3 +47,5 @@ C:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\runtimes\linux
 C:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\runtimes\osx\native\libmongocrypt.dylib
 C:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\runtimes\win\native\mongocrypt.dll
 C:\Users\MONSTER\Desktop\projects\DutyAssignment\obj\Debug\net8.0\DutyAssignment.sourcelink.json
+C:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\DotNetEnv.dll
+C:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\Sprache.dll

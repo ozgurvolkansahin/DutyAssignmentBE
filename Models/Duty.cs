@@ -1,16 +1,23 @@
+using DutyAssignment.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace DutyAssignment.Models;
-
-public class Duty: Entity
+namespace DutyAssignment.Models
 {
-    [BsonElement("duty_id")]
-    public string DutyId { get; set; } = null!;
+    [BsonDiscriminator(Required = true)]
+    public class Duty : IDuty
+    {
+        [BsonElement("duty_id")]
 
-    [BsonElement("duty_description")]
-    public string Description { get; set; } = null!;
+        public required string DutyId { get; set; }
+        [BsonElement("duty_description")]
 
-    [BsonElement("date")]
-    public DateTime Date { get; set; }
+        public required string Description { get; set; }
+        [BsonElement("date")]
+
+        public DateTime Date { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public required string Id { get; set; }
+    }
 }

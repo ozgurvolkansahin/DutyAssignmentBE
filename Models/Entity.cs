@@ -1,12 +1,11 @@
+using DutyAssignment.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace DutyAssignment.Models;
 
-public class Entity
+public abstract class Entity<T>: IEntity<T>
 {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        [BsonElement("_id")]
-        public ObjectId Id { get; set; }
+        public abstract T Id { get; set; }
 }
