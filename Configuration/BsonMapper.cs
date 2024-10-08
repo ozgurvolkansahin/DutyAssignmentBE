@@ -39,7 +39,7 @@ namespace DutyAssignment.Config.BsonMapper
             // BsonSerializer.RegisterSerializer<IUser>(new ImpliedImplementationInterfaceSerializer<IUser, User>(userSerializer));       
         }
 
-        public static Type FindMappingType<T>()
+        public static Type? FindMappingType<T>()
         {
             var type = typeof(T);
             if (TypeMap.ContainsKey(type))
@@ -49,7 +49,7 @@ namespace DutyAssignment.Config.BsonMapper
             return null;
         }
 
-        public static Type FindMappingType(Type interfaceType)
+        public static Type? FindMappingType(Type interfaceType)
         {
             if (TypeMap.ContainsKey(interfaceType))
             {
