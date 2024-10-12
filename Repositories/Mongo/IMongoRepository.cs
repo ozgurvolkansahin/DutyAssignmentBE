@@ -1,4 +1,5 @@
 using DutyAssignment.Interfaces;
+using MongoDB.Driver;
 
 namespace DutyAssignment.Repositories.Mongo
 {
@@ -7,7 +8,9 @@ namespace DutyAssignment.Repositories.Mongo
         Task<IEnumerable<TEntity>> GetAsync();
         Task<TEntity> GetOneAsync(TId id);
         Task CreateAsync(TEntity entity);
+        Task InsertManyAsync(IEnumerable<TEntity> entities);
         Task UpdateAsync(TId id, TEntity entity);
+        Task UpdateManyAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update);
         Task DeleteAsync(TId id);
     }
 }

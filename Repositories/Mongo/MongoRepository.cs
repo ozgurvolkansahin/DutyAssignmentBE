@@ -27,6 +27,10 @@ namespace DutyAssignment.Repositories.Mongo
             return await _collection.Find(x => x.Id!.Equals(id)).FirstOrDefaultAsync();
         }
 
+        public async Task InsertManyAsync(IEnumerable<TEntity> entities) {
+            await _collection.InsertManyAsync(entities);
+        }
+
         public async Task CreateAsync(TEntity entity)
         {
             await _collection.InsertOneAsync(entity);
@@ -35,6 +39,10 @@ namespace DutyAssignment.Repositories.Mongo
         public async Task UpdateAsync(TId id, TEntity entity)
         {
             await _collection.ReplaceOneAsync(new BsonDocument("_id", new ObjectId()), entity);
+        }
+        public async Task UpdateManyAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
+        {
+            await _collection.UpdateManyAsync(filter, update);
         }
 
         public async Task DeleteAsync(TId id)

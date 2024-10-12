@@ -13,11 +13,20 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     {
     }
 
-
-    [HttpGet("GetDutiesByDate")]
-    public async Task<IEnumerable<IDuty>> GetAsync()
+    [HttpGet("GetDuties")]
+    public async Task<OkObjectResult> GetDuties()
     {
-        return await Service.GetDuties();
+        return ApiResultOk(await Service.GetDuties());
     }
-
+    [HttpGet("ProcessDutyExcelFiles")]
+    public OkObjectResult ProcessDutyExcelFiles()
+    {
+        return ApiResultOk(Service.ProcessDutyExcelFiles());
+    }
+        [HttpGet("InsertDuties")]
+    public async Task<OkObjectResult> InsertDuties()
+    {
+        return ApiResultOk(await Service.InsertDuties());
+    }
+    
 }

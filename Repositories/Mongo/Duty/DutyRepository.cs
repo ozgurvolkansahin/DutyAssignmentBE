@@ -10,11 +10,14 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         {
 
         }
-        public async Task<IEnumerable<IDuty>> GetDutiesByDateAsync()
+        public async Task<IEnumerable<IDuty>> GetDutiesAsync()
         {
-            var obj = await GetAsync();
-            return obj;
+            return await GetAsync();
+        }
+        public async Task<IEnumerable<IDuty>> GetDutiesById(IEnumerable<string> ids)
+        {
+            var filter = Builders<IDuty>.Filter.In(x => x.DutyId, ids);
+            return await _collection.Find(filter).ToListAsync();
         }
     }
-
 }
