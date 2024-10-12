@@ -21,9 +21,9 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     [HttpGet("ProcessDutyExcelFiles")]
     public OkObjectResult ProcessDutyExcelFiles()
     {
-        return ApiResultOk(Service.ProcessDutyExcelFiles());
+        return ApiResultOk(Service.ProcessDutyExcelFilesAsync());
     }
-        [HttpGet("InsertDuties")]
+    [HttpGet("InsertDuties")]
     public async Task<OkObjectResult> InsertDuties()
     {
         return ApiResultOk(await Service.InsertDuties());

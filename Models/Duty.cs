@@ -4,7 +4,6 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DutyAssignment.Models
 {
-    [BsonDiscriminator(Required = true)]
     public partial class Duty : IDuty
     {
         [BsonElement("duty_id")]

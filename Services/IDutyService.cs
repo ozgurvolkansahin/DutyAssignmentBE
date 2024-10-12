@@ -6,7 +6,7 @@ namespace DutyAssignment.Services
     public interface IDutyService
     {
         Task<IEnumerable<IDuty>> GetDuties();
-        IEnumerable<IDuty> ProcessDutyExcelFiles();
-         Task<object> InsertDuties();
+        Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync();
+        Task<object> InsertDuties();
     }
 }

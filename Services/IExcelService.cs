@@ -1,4 +1,5 @@
 using DutyAssignment.Interfaces;
+using DutyAssignment.Models;
 
 namespace DutyAssignment.Services
 {
@@ -6,5 +7,6 @@ namespace DutyAssignment.Services
     {
         void ReadPersonalExcel();
         List<string> FindFiles();
+        PersonalInDuty ReadDutyFile(string filePath);
     }
 }

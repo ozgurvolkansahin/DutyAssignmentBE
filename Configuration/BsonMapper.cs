@@ -13,6 +13,8 @@ namespace DutyAssignment.Config.BsonMapper
         public static Dictionary<Type, Type> TypeMap = new Dictionary<Type, Type>
         {
             [typeof(IDuty)] = typeof(Duty),
+            [typeof(IPersonalExcel)] = typeof(PersonalExcel),
+            [typeof(IAssignment)] = typeof(Assignment),
 
         };
         public static void Map()
