@@ -28,5 +28,9 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     {
         return ApiResultOk(await Service.InsertDuties());
     }
-    
+    [HttpGet("AssignPersonalForPayment")]
+    public async Task<OkObjectResult> AssignPersonalForPayment()
+    {
+        return ApiResultOk(await Service.GetOccurrencesOfSpecificValues(new string[] { "Personal for Payment" }));
+    }
 }

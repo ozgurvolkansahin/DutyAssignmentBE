@@ -1,5 +1,6 @@
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
+using MongoDB.Bson;
 
 namespace DutyAssignment.Services
 {
@@ -8,5 +9,6 @@ namespace DutyAssignment.Services
         Task<IEnumerable<IDuty>> GetDuties();
         Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync();
         Task<object> InsertDuties();
+        Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(string[] specificValues);
     }
 }

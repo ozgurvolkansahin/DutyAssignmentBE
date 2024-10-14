@@ -59,43 +59,48 @@ public class ExcelService : IExcelService
                 var responsibleManagers = Enumerable.Range(1, worksheet.Dimension.Rows)
                 // stop if the row value is "GÖREVLİ PERSONEL"
                 .TakeWhile(row => worksheet.Cells[row, 1].Value?.ToString() != "GÖREVLİ PERSONEL")
-                .Select(row =>  new PersonalExcel
-                    {
-                        SN = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty,
-                        Sicil = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty,
-                        TcKimlik = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty,
-                        Ad = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty,
-                        Soyad = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty,
-                        Rutbe = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty,
-                        Birim = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty,
-                        Nokta = worksheet.Cells[row, 8].Value?.ToString()?.Trim() ?? string.Empty,
-                        Grup = worksheet.Cells[row, 9].Value?.ToString()?.Trim() ?? string.Empty,
-                        Tel = worksheet.Cells[row, 10].Value?.ToString()?.Trim() ?? string.Empty,
-                        Iban = worksheet.Cells[row, 11].Value?.ToString()?.Trim() ?? string.Empty,
-                        Id = ObjectId.GenerateNewId().ToString()
+                .Select(row => new PersonalExcel
+                {
+                    SN = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty,
+                    Sicil = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty,
+                    TcKimlik = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty,
+                    Ad = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty,
+                    Soyad = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty,
+                    Rutbe = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty,
+                    Birim = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty,
+                    Nokta = worksheet.Cells[row, 8].Value?.ToString()?.Trim() ?? string.Empty,
+                    Grup = worksheet.Cells[row, 9].Value?.ToString()?.Trim() ?? string.Empty,
+                    Tel = worksheet.Cells[row, 10].Value?.ToString()?.Trim() ?? string.Empty,
+                    Iban = worksheet.Cells[row, 11].Value?.ToString()?.Trim() ?? string.Empty,
+                    Id = ObjectId.GenerateNewId().ToString(),
+                    Duties = new List<string>(),
+                    PaidDuties = new List<string>()
 
-                    }
+
+                }
                 )
                 .ToList();
                 // add +2 to skip the row last manager row and with "GÖREVLİ PERSONEL"
                 //  start from 15th row to the end
-                
+
                 var policeAttendant = Enumerable.Range(responsibleManagers.Count + 2, worksheet.Dimension.Rows - responsibleManagers.Count - 1)
-                .Select(row =>  new PersonalExcel
-                    {
-                        SN = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty,
-                        Sicil = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty,
-                        TcKimlik = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty,
-                        Ad = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty,
-                        Soyad = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty,
-                        Rutbe = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty,
-                        Birim = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty,
-                        Nokta = worksheet.Cells[row, 8].Value?.ToString()?.Trim() ?? string.Empty,
-                        Grup = worksheet.Cells[row, 9].Value?.ToString()?.Trim() ?? string.Empty,
-                        Tel = worksheet.Cells[row, 10].Value?.ToString()?.Trim() ?? string.Empty,
-                        Iban = worksheet.Cells[row, 11].Value?.ToString()?.Trim() ?? string.Empty,
-                        Id = ObjectId.GenerateNewId().ToString()
-                    }
+                .Select(row => new PersonalExcel
+                {
+                    SN = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty,
+                    Sicil = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty,
+                    TcKimlik = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty,
+                    Ad = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty,
+                    Soyad = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty,
+                    Rutbe = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty,
+                    Birim = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty,
+                    Nokta = worksheet.Cells[row, 8].Value?.ToString()?.Trim() ?? string.Empty,
+                    Grup = worksheet.Cells[row, 9].Value?.ToString()?.Trim() ?? string.Empty,
+                    Tel = worksheet.Cells[row, 10].Value?.ToString()?.Trim() ?? string.Empty,
+                    Iban = worksheet.Cells[row, 11].Value?.ToString()?.Trim() ?? string.Empty,
+                    Id = ObjectId.GenerateNewId().ToString(),
+                    Duties = new List<string>(),
+                    PaidDuties = new List<string>()
+                }
                 )
                 .ToList();
                 return new PersonalInDuty { ResponsibleManagers = responsibleManagers, PoliceAttendants = policeAttendant };

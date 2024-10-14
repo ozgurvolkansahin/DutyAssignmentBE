@@ -16,4 +16,13 @@ namespace DutyAssignment.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public required string Id { get; set; }
     }
+    public class PeopleCount
+    {
+        [BsonElement("_id")]
+
+        public string Id { get; set; }
+        [BsonElement("count")]
+
+        public int Count { get; set; }
+    }
 }

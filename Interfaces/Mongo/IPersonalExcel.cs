@@ -17,5 +17,7 @@ public interface IPersonalExcel: IEntity<string>
     string Grup { get; set; }
     string Tel { get; set; }
     string Iban { get; set; }
+    IEnumerable<string> Duties { get; set; }
+    IEnumerable<string> PaidDuties { get; set; }
 }
 }

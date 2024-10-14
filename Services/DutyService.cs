@@ -54,7 +54,9 @@ public class DutyService : IDutyService
             PersonalInDuty personalInDuty = _excelService.ReadDutyFile(file + ".xlsx");
             await InsertPersonal(personalInDuty.ResponsibleManagers);
             await InsertPersonal(personalInDuty.PoliceAttendants);
-            _ = SaveAssignment(file, personalInDuty);
+            _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty);
+            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList());
+            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList());
             duties.Add(CreateProcessedDutyObject(file));
         }
         return duties;
@@ -97,5 +99,10 @@ public class DutyService : IDutyService
             PoliceAttendants = personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(),
             Id = ObjectId.GenerateNewId().ToString()
         });
+    }
+    public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(string[] specificValues)
+    {
+        var result = await _assignmentRepository.GetOccurrencesOfSpecificValues(specificValues);
+        return result;
     }
 }

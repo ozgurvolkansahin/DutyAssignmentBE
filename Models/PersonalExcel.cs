@@ -17,6 +17,10 @@ public class PersonalExcel : IPersonalExcel
     public required string Grup { get; set; }
     public required string Tel { get; set; }
     public required string Iban { get; set; }
+    [BsonElement("duties")]
+    public required IEnumerable<string> Duties { get; set; }
+    [BsonElement("paid_duties")]
+    public required IEnumerable<string> PaidDuties { get; set; }
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public required string Id { get; set; }
