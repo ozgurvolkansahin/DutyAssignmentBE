@@ -9,6 +9,6 @@ namespace DutyAssignment.Services
         Task<IEnumerable<IDuty>> GetDuties();
         Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync();
         Task<object> InsertDuties();
-        Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(string[] specificValues);
+        Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues);
     }
 }

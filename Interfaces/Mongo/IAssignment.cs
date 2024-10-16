@@ -1,6 +1,4 @@
-using DutyAssignment.Interfaces;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using DutyAssignment.Models;
 
 namespace DutyAssignment.Interfaces
 {
@@ -9,5 +7,10 @@ namespace DutyAssignment.Interfaces
         string DutyId { get; set; }
         IEnumerable<string> ResponsibleManagers { get; set; }
         IEnumerable<string> PoliceAttendants { get; set; }
+        IEnumerable<string> PaidPersonal { get; set; }
+        IEnumerable<PreviousAssignments> PreviousAssignments { get; set; }
+        DateTime AssignmentDate { get; set; }
+        DateTime LastUpdate { get; set; }
+        bool IsActive { get; set; }
     }
 }

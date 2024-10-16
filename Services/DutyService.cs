@@ -92,15 +92,21 @@ public class DutyService : IDutyService
         var record = await _assignmentRepository.GeAssignmentByDutyId(dutyId);
         // we only want to insert records that do not exist in the database
         if (record != null) return;
+        DateTime dateTime = DateTime.Now;
         _ = _assignmentRepository.CreateAsync(new Assignment
         {
             DutyId = dutyId,
             ResponsibleManagers = personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(),
             PoliceAttendants = personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(),
-            Id = ObjectId.GenerateNewId().ToString()
+            Id = ObjectId.GenerateNewId().ToString(),
+            PreviousAssignments = new List<PreviousAssignments>(),
+            LastUpdate = dateTime,
+            AssignmentDate = dateTime,
+            IsActive = false,
+            PaidPersonal = new List<string>()
         });
     }
-    public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(string[] specificValues)
+    public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)
     {
         var result = await _assignmentRepository.GetOccurrencesOfSpecificValues(specificValues);
         return result;

@@ -17,12 +17,35 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var filter = Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId);
             return await _collection.Find(filter).FirstOrDefaultAsync();
         }
-        public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(string[] specificValues)
+        public async Task SetAssignmentPaid(string dutyId, IEnumerable<string> sicil)
         {
-            var spexxxcificValues = new BsonArray {"431039", "488965", "270347", "321498"};
+            var updateTime = DateTime.Now;
+            var filter = Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId);
+            var update = Builders<IAssignment>.Update.Set(x => x.PaidPersonal, sicil)
+                .Set(x => x.AssignmentDate, updateTime)
+                .Set(x => x.LastUpdate, updateTime)
+                .Set(x => x.IsActive, true);
+            await _collection.UpdateManyAsync(filter, update);
+        }
+        public async Task SetAssignmentUnPaid(string dutyId, IEnumerable<string> sicil, DateTime lastAssignmentDate)
+        {
+            var updateTime = DateTime.Now;
+            var filter = Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId);
+            var update = Builders<IAssignment>.Update
+                .Push("PreviousAssignments", new PreviousAssignments {
+                    Personal = sicil,
+                    Date = lastAssignmentDate
+                    })
+                .Set(x => x.PaidPersonal, new List<string>())
+                .Set(x => x.LastUpdate, updateTime)
+                .Set(x => x.IsActive, false);
+            await _collection.UpdateManyAsync(filter, update);
+        }
+        public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)
+        {
 
             var pipeline = new BsonDocument[]
-{
+        {
             // ResponsibleManagers ve PoliceAttendants dizilerini birleştiriyoruz
             new BsonDocument("$project", new BsonDocument
             {
@@ -35,7 +58,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // Belirtilen ID'lerle eşleşenleri filtreliyoruz
             new BsonDocument("$match", new BsonDocument
             {
-                { "AllPeople", new BsonDocument("$in", spexxxcificValues) }
+                { "AllPeople", new BsonDocument("$in", specificValues) }
             }),
             // Aynı ID'yi gruplayıp sayısını alıyoruz
             new BsonDocument("$group", new BsonDocument

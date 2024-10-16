@@ -19,8 +19,7 @@ namespace DutyAssignment.Models
     public class PeopleCount
     {
         [BsonElement("_id")]
-
-        public string Id { get; set; }
+        public required string Id { get; set; }
         [BsonElement("count")]
 
         public int Count { get; set; }

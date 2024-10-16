@@ -2,6 +2,7 @@ using DutyAssignment.Interfaces;
 using DutyAssignment.Repositories.Mongo.Duty;
 using DutyAssignment.Services;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace DutyAssignment.Controllers;
 
@@ -28,9 +29,9 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     {
         return ApiResultOk(await Service.InsertDuties());
     }
-    [HttpGet("AssignPersonalForPayment")]
-    public async Task<OkObjectResult> AssignPersonalForPayment()
+    [HttpPost("GetOccurrencesOfSpecificValues")]
+    public async Task<OkObjectResult> GetOccurrencesOfSpecificValues([FromBody] BsonArray specificValues)
     {
-        return ApiResultOk(await Service.GetOccurrencesOfSpecificValues(new string[] { "Personal for Payment" }));
+        return ApiResultOk(await Service.GetOccurrencesOfSpecificValues(specificValues));
     }
 }

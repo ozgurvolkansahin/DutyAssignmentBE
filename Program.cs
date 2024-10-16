@@ -24,7 +24,9 @@ builder.Services.AddScoped<IDutyService,DutyService>();
 builder.Services.AddScoped<IDutyRepository,DutyRepository>();
 builder.Services.AddScoped<IPersonalRepository,PersonalRepository>();
 builder.Services.AddScoped<IAssignmentRepository,AssignmentRepository>();
+
 builder.Services.AddScoped<IExcelService,ExcelService>();
+builder.Services.AddScoped<IAssignmentService,AssignmentService>();
 
 var app = builder.Build();
 
