@@ -32,10 +32,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var updateTime = DateTime.Now;
             var filter = Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId);
             var update = Builders<IAssignment>.Update
-                .Push("PreviousAssignments", new PreviousAssignments {
+                .Push("PreviousAssignments", new PreviousAssignments
+                {
                     Personal = sicil,
                     Date = lastAssignmentDate
-                    })
+                })
                 .Set(x => x.PaidPersonal, new List<string>())
                 .Set(x => x.LastUpdate, updateTime)
                 .Set(x => x.IsActive, false);
@@ -73,6 +74,37 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             return await _collection.Aggregate<PeopleCount>(pipeline).ToListAsync();
             // total assignment result listesinde
             // zorunlu atanacakları ekle ve en azdan olacak şekilde istenilen miktarda kişiyi göreve ata
+        }
+
+        public async Task<IEnumerable<IAssignmentLookupDuty>> SortAssignmentsByDateAndGetByPage(int page, int pageSize)
+        {
+            // filter by PaidPersonal is null, then sort by AssignmentDate, then skip and take, then lookup with duty
+            var pipeline = new BsonDocument[]
+            {
+                    new BsonDocument("$match", new BsonDocument
+    {
+        { "PaidPersonal", new BsonDocument("$eq", new BsonArray()) }
+    }),
+    new BsonDocument("$lookup", new BsonDocument
+    {
+        { "from", "duty" },
+        { "localField", "DutyId" },
+        { "foreignField", "duty_id" },
+        { "as", "Duty" }
+    }),
+    new BsonDocument("$unwind", "$Duty"),
+    new BsonDocument("$sort", new BsonDocument("Duty.date", 1)),
+    new BsonDocument("$skip", (page - 1) * pageSize),
+    new BsonDocument("$limit", pageSize),
+    new BsonDocument("$project", new BsonDocument
+    {
+        { "Duty", 1 },
+        { "date", 1 },
+        { "DutyId", 1 }
+    })
+            };
+
+            return await _collection.Aggregate<AssignmentLookupDuty>(pipeline).ToListAsync();
         }
     }
 }

@@ -14,6 +14,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 BsonMapper.Map();
+// setup cors
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      builder =>
+                      {
+                          builder.WithOrigins("http://localhost:3000");
+                      });
+});
 // ClassMapRegisterer.RegisterClassMaps();
 // register excelpackage license
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -24,9 +34,11 @@ builder.Services.AddScoped<IDutyService,DutyService>();
 builder.Services.AddScoped<IDutyRepository,DutyRepository>();
 builder.Services.AddScoped<IPersonalRepository,PersonalRepository>();
 builder.Services.AddScoped<IAssignmentRepository,AssignmentRepository>();
+builder.Services.AddScoped<IDashboardRepository,DashboardRepository>();
 
 builder.Services.AddScoped<IExcelService,ExcelService>();
 builder.Services.AddScoped<IAssignmentService,AssignmentService>();
+builder.Services.AddScoped<IDashboardService,DashboardService>();
 
 var app = builder.Build();
 
@@ -38,6 +50,8 @@ var app = builder.Build();
 // }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 

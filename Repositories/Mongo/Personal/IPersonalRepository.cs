@@ -9,5 +9,8 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task PushDutyIdToDutyArray(string dutyId, List<string> sicil);
         Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil);
         Task RemoveDutyIdFromPaidDutyArray(string dutyId);
+        Task<int> GetTotalPaymentsAsync();
+        Task<int> GetTotalAssignedPersonal();
+
     }
 }

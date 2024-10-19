@@ -7,6 +7,7 @@ namespace DutyAssignment.Repositories.Mongo
     {
         Task<IEnumerable<TEntity>> GetAsync();
         Task<TEntity> GetOneAsync(TId id);
+        Task<int> GetCountAsync();
         Task CreateAsync(TEntity entity);
         Task InsertManyAsync(IEnumerable<TEntity> entities);
         Task UpdateAsync(TId id, TEntity entity);

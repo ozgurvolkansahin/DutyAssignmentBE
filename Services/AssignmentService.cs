@@ -62,6 +62,9 @@ public class AssignmentService : IAssignmentService
         var responsibleManagers = await _personalRepository.GetPersonalById(assignment.ResponsibleManagers);
         selectedPeople = selectedPeople.Concat(responsibleManagers.Cast<PersonalExcel>().ToList()).ToList();
 
+        // remove ResponsibleManagers from personals
+        personals = personals.Where(x => !assignment.ResponsibleManagers.Contains(x.Sicil)).ToList();
+        
         // find min and max number of paid duties assigned to a person assigned to this duty
         int min = personals.Min(x => x.PaidDuties.Count());
         int max = personals.Max(x => x.PaidDuties.Count());

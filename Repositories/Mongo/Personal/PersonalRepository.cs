@@ -1,5 +1,6 @@
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
@@ -39,6 +40,31 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // remove the dutyId from the PaidDuties array
             var update = Builders<IPersonalExcel>.Update.Pull(x => x.PaidDuties, dutyId);
             await UpdateManyAsync(filter, update);
+        }
+        public async Task<int> GetTotalPaymentsAsync()
+        {
+            // get count of all documents that have a non-empty PaidDuties array
+            var filter = Builders<IPersonalExcel>.Filter.SizeGt(x => x.PaidDuties, 0);
+            return Convert.ToInt32(await _collection.CountDocumentsAsync(filter));
+        }
+
+                public async Task<int> GetTotalAssignedPersonal()
+        {
+            // get total count of PoliceAttendants and ResponsibleManagers
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$project", new BsonDocument
+                {
+                    { "dutiesCount", new BsonDocument("$size", new BsonArray { "$Duties" }) }
+                }),
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "null" },
+                    { "totalDutiesCount", new BsonDocument("$sum", "$dutiesCount") }
+                })            };
+            // return count property from result
+            return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
+            
         }
     }
 }

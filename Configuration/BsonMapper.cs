@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DutyAssignment.Controllers;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 
@@ -15,7 +16,7 @@ namespace DutyAssignment.Config.BsonMapper
             [typeof(IDuty)] = typeof(Duty),
             [typeof(IPersonalExcel)] = typeof(PersonalExcel),
             [typeof(IAssignment)] = typeof(Assignment),
-
+            [typeof(IDashboard)] = typeof(Dashboard),
         };
         public static void Map()
         {

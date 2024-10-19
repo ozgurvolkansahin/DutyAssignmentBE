@@ -10,5 +10,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues);
       Task SetAssignmentPaid(string dutyId, IEnumerable<string> sicil);
       Task SetAssignmentUnPaid(string dutyId, IEnumerable<string> sicil, DateTime lastAssignmentDate);
+      Task<IEnumerable<IAssignmentLookupDuty>> SortAssignmentsByDateAndGetByPage(int page, int pageSize);
     }
 }

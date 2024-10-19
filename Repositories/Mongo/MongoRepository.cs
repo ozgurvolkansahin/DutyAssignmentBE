@@ -26,6 +26,10 @@ namespace DutyAssignment.Repositories.Mongo
         {
             return await _collection.Find(x => x.Id!.Equals(id)).FirstOrDefaultAsync();
         }
+        public async Task<int> GetCountAsync()
+        {
+            return Convert.ToInt32(await _collection.CountDocumentsAsync(_ => true));
+        }
 
         public async Task InsertManyAsync(IEnumerable<TEntity> entities) {
             await _collection.InsertManyAsync(entities);

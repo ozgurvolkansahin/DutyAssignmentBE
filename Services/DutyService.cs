@@ -74,7 +74,7 @@ public class DutyService : IDutyService
             DutyId = fileInfo[0].Trim(),
             Description = fileInfo[1].Trim().Replace("_", "-"),
             // int year, int month, int day, int hour, int minute, int second
-            Date = new DateTime(int.Parse(dateInfo[2]), int.Parse(dateInfo[1]), int.Parse(dateInfo[0]), int.Parse(dateInfo[3]), int.Parse(dateInfo[4]), 0)
+            Date = new DateTime(int.Parse(dateInfo[2]), int.Parse(dateInfo[1]), int.Parse(dateInfo[0]), 0, 0, 0)
         };
     }
     private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel)
@@ -97,7 +97,7 @@ public class DutyService : IDutyService
         {
             DutyId = dutyId,
             ResponsibleManagers = personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(),
-            PoliceAttendants = personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(),
+            PoliceAttendants = personalInDuty.PoliceAttendants.Where(x => !personalInDuty.ResponsibleManagers.Select(y => y.Sicil).Contains(x.Sicil)).Select(x => x.Sicil).ToList(),
             Id = ObjectId.GenerateNewId().ToString(),
             PreviousAssignments = new List<PreviousAssignments>(),
             LastUpdate = dateTime,
