@@ -29,7 +29,8 @@ public class DashboardService : IDashboardService
         var totalPayments = await _personalRepository.GetTotalPaymentsAsync();
         var dashboardInfo = await _dashboardRepository.GetDashboardData();
         var assignmentsLookup = await _assignmentRepository.SortAssignmentsByDateAndGetByPage(pageNumber, pageSize);
+        var waitingAssignmentsCount = await _assignmentRepository.GetWaitingAssignmentsCount();
         var totalAssignedPersonal = await _personalRepository.GetTotalAssignedPersonal();
-        return new DashboardDTO(dashboardInfo, totalDuties, totalAssignments, totalPayments, assignmentsLookup, totalAssignedPersonal);
+        return new DashboardDTO(dashboardInfo, totalDuties, totalAssignments, totalPayments, assignmentsLookup, totalAssignedPersonal, waitingAssignmentsCount);
     }
 }

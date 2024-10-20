@@ -13,6 +13,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task SetAssignmentPaid(string dutyId, IEnumerable<string> sicil);
       Task SetAssignmentUnPaid(string dutyId, IEnumerable<string> sicil, DateTime lastAssignmentDate);
       Task<IEnumerable<IAssignmentLookupDuty>> SortAssignmentsByDateAndGetByPage(int page, int pageSize);
+      Task<int> GetWaitingAssignmentsCount();
       Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize);
     }
 }

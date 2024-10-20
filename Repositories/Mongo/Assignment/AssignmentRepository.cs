@@ -77,7 +77,20 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // total assignment result listesinde
             // zorunlu atanacakları ekle ve en azdan olacak şekilde istenilen miktarda kişiyi göreve ata
         }
-
+        public async Task<int> GetWaitingAssignmentsCount()
+        {
+            // match by PaidPersonal is null
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument
+                {
+                    { "PaidPersonal", new BsonDocument("$eq", new BsonArray()) }
+                }),
+                new BsonDocument("$count", "count")
+            };
+            var result = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            return result?["count"].AsInt32 ?? 0;
+        }
         public async Task<IEnumerable<IAssignmentLookupDuty>> SortAssignmentsByDateAndGetByPage(int page, int pageSize)
         {
             // filter by PaidPersonal is null, then sort by AssignmentDate, then skip and take, then lookup with duty
