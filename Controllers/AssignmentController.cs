@@ -18,4 +18,15 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     {
         return ApiResultOk(await Service.GetAssignments(selectPersonalToBePaid.dutyIds, selectPersonalToBePaid.assignmentCount, selectPersonalToBePaid.reAssign));
     }
+    [HttpGet("PaidAssignments")]
+    public async Task<OkObjectResult> PaidAssignments([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        return ApiResultOk(await Service.GetPaidAssignments(pageNumber, pageSize));
+    }
+    [HttpPost("GetAssignedPersonalByDutyIdWithPagination")]
+    public async Task<OkObjectResult>  GetAssignedPersonalByDutyIdWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
+    {
+        return ApiResultOk(await Service.GetAssignedPersonalByDutyIdWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize));
+    }
+
 }

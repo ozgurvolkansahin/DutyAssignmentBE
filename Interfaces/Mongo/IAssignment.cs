@@ -20,6 +20,9 @@ namespace DutyAssignment.Interfaces
         public string DutyId { get; set; }
         public IDuty Duty { get; set; }
         public DateTime date { get; set; }
+        public int PoliceAttendantsCount { get; set; }
+        public int ResponsibleManagersCount { get; set; }
+        public int PaidPersonalCount { get; set; }
     }
     public class AssignmentLookupDuty : IAssignmentLookupDuty
     {
@@ -29,5 +32,8 @@ namespace DutyAssignment.Interfaces
         public required string DutyId { get; set; }
         public required IDuty Duty { get; set; }
         public DateTime date { get; set; }
+        public int PoliceAttendantsCount { get; set; }
+        public int PaidPersonalCount { get; set; }
+        public int ResponsibleManagersCount { get; set; }
     }
 }

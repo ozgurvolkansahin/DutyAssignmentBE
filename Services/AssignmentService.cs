@@ -1,6 +1,8 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using DutyAssignment.Repositories.Mongo.Duty;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -34,7 +36,14 @@ public class AssignmentService : IAssignmentService
         }
         return assignments;
     }
-
+    public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<object>> GetPaidAssignments(int pageNumber, int pageSize)
+    {
+        return await _assignmentRepository.GetPaidAssignments(pageNumber, pageSize);
+    }
+    public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize)
+    {
+        return await _assignmentRepository.GetAssignedPersonalByDutyIdWithPagination(dutyId, page, pageSize);
+    }
     public async Task<IEnumerable<PersonalExcel>> SelectPersonalToBePaid(string duty, int numToSelect, bool reAssign)
     {
 
@@ -64,7 +73,7 @@ public class AssignmentService : IAssignmentService
 
         // remove ResponsibleManagers from personals
         personals = personals.Where(x => !assignment.ResponsibleManagers.Contains(x.Sicil)).ToList();
-        
+
         // find min and max number of paid duties assigned to a person assigned to this duty
         int min = personals.Min(x => x.PaidDuties.Count());
         int max = personals.Max(x => x.PaidDuties.Count());
