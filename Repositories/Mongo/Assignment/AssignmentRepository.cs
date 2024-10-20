@@ -93,7 +93,12 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 { "localField", "DutyId" },
                 { "foreignField", "duty_id" },
                 { "as", "Duty" }
-            }),
+            }),                new BsonDocument("$addFields", new BsonDocument
+    {
+        { "PaidPersonalCount", new BsonDocument("$size", "$PaidPersonal") },
+        { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
+        { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
+    }),
             new BsonDocument("$unwind", "$Duty"),
             new BsonDocument("$sort", new BsonDocument("Duty.date", 1)),
             new BsonDocument("$skip", (page - 1) * pageSize),
@@ -102,7 +107,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             {
                 { "Duty", 1 },
                 { "date", 1 },
-                { "DutyId", 1 }
+                { "DutyId", 1 },
+                // Arraylerin boyutlarını projelendiriyoruz
+                { "PaidPersonalCount", 1 },
+                { "PoliceAttendantsCount", 1 },
+                { "ResponsibleManagersCount", 1 }
             })
             };
 

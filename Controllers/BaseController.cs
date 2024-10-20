@@ -34,6 +34,20 @@ namespace DutyAssignment.Controllers
                 status = (int)HttpStatusCode.OK
             });
         }
+        public BadRequestObjectResult ApiResultNotOk<T>(T result, bool success = false, int itemCount = 0)
+        {
+            if (result is ICollection collection && itemCount == 1)
+            {
+                itemCount = collection.Count;
+            }
+            return BadRequest(new
+            {
+                success,
+                data = result,
+                itemCount,
+                status = (int)HttpStatusCode.OK
+            });
+        }
     }
 
     public abstract class BaseController<TController> : ControllerBase

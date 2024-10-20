@@ -14,9 +14,13 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     }
 
     [HttpPost("SelectPersonalToBePaid")]
-    public async Task<OkObjectResult> SelectPersonalToBePaid([FromBody] SelectPersonalToBePaid selectPersonalToBePaid)
+    public async Task<IActionResult> SelectPersonalToBePaid([FromBody] SelectPersonalToBePaid selectPersonalToBePaid)
     {
+        try {
         return ApiResultOk(await Service.GetAssignments(selectPersonalToBePaid.dutyIds, selectPersonalToBePaid.assignmentCount, selectPersonalToBePaid.reAssign));
+        } catch (Exception ex) {
+            return ApiResultNotOk(ex.Message);
+        }
     }
     [HttpGet("PaidAssignments")]
     public async Task<OkObjectResult> PaidAssignments([FromQuery] int pageNumber, [FromQuery] int pageSize)
