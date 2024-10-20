@@ -13,12 +13,14 @@ public class AssignmentService : IAssignmentService
     private readonly IDutyRepository _dutyRepository;
     private readonly IPersonalRepository _personalRepository;
     private readonly IAssignmentRepository _assignmentRepository;
+    private readonly IExcelService _excelService;
 
-    public AssignmentService(IDutyRepository dutyRepository, IPersonalRepository personalRepository, IAssignmentRepository assignmentRepository)
+    public AssignmentService(IDutyRepository dutyRepository, IPersonalRepository personalRepository, IAssignmentRepository assignmentRepository, IExcelService excelService)
     {
         _dutyRepository = dutyRepository;
         _personalRepository = personalRepository;
         _assignmentRepository = assignmentRepository;
+        _excelService = excelService;
     }
 
     public async Task<IEnumerable<IDutyAssignments>> GetAssignments(IEnumerable<string> dutyIds, int numToSelect, bool reAssign)
@@ -110,5 +112,11 @@ public class AssignmentService : IAssignmentService
         await _personalRepository.PushDutyIdToPaidDutyArray(duty, selectedPeople.Select(x => x.Sicil).ToList());
         await _assignmentRepository.SetAssignmentPaid(duty, selectedPeople.Select(x => x.Sicil).ToList());
         return selectedPeople.AsEnumerable();
+    }
+    public async Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId)
+    {
+        var assignment = await _assignmentRepository.GeAssignmentByDutyId(dutyId);
+        var personnel = await _personalRepository.GetPersonalById(assignment.PaidPersonal.ToList());
+        return _excelService.DownloadExcel(personnel);
     }
 }

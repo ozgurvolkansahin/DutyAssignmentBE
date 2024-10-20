@@ -1,7 +1,9 @@
 using DotNetEnv;
+using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using MongoDB.Bson;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System.IO;
 
 namespace DutyAssignment.Services;
@@ -111,4 +113,50 @@ public class ExcelService : IExcelService
             }
         }
     }
+    public byte[] DownloadExcel(IEnumerable<IPersonalExcel> personalList)
+    {
+        // Excel şablonunun yolunu belirt (eğer var olan bir şablonu kullanıyorsan)
+        var templatePath = Path.Combine(ExcelPath, "report_template.xlsx");
+        using (var package = new ExcelPackage(new FileInfo(templatePath)))
+        {
+            var worksheet = package.Workbook.Worksheets[0]; // İlk çalışma sayfasını al
+
+
+            int startRow = 5; // 5. sıradan itibaren doldur
+            worksheet.InsertRow(startRow, personalList.Count());
+            var personalArray = personalList.ToArray();
+            for (int i = 0; i < personalArray.Length; i++)
+            {
+                worksheet.Cells[startRow + i, 1].Value = i + 1; // İsim
+
+                long tcKimlikValue;
+                worksheet.Cells[startRow + i, 2].Value = Int64.TryParse(personalArray[i].TcKimlik, out tcKimlikValue) ? tcKimlikValue : 0;
+                worksheet.Cells[startRow + i, 2].Style.Numberformat.Format = "0";
+                worksheet.Cells[startRow + i, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                long sicilValue;
+                worksheet.Cells[startRow + i, 3].Value = Int64.TryParse(personalArray[i].Sicil, out sicilValue) ? sicilValue : 0;
+                worksheet.Cells[startRow + i, 3].Style.Numberformat.Format = "0";
+                worksheet.Cells[startRow + i, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                worksheet.Cells[startRow + i, 4].Value = personalArray[i].Ad;
+                worksheet.Cells[startRow + i, 5].Value = personalArray[i].Soyad;
+                worksheet.Cells[startRow + i, 6].Value = personalArray[i].Rutbe;
+                worksheet.Cells[startRow + i, 7].Value = personalArray[i].Iban;
+                worksheet.Cells[startRow + i, 8].Value = "";
+                worksheet.Cells[startRow + i, 9].Value = personalArray[i].Birim;
+
+                worksheet.Cells[startRow + i, 1].Style.Font.Bold = true;
+                worksheet.Cells[startRow + i, 1, startRow + i, 9].Style.Font.Name = "Times New Roman";  // Yazı tipi
+                worksheet.Cells[startRow + i, 1, startRow + i, 9].Style.Font.Size = 16;  // Yazı boyutu
+            }
+            var border = worksheet.Cells[5, 1, personalList.Count() + 5, 12];
+            border.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+            border.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+            border.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+            border.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            return package.GetAsByteArray();
+        }
+    }
+
 }

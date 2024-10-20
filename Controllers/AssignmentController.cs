@@ -28,5 +28,11 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     {
         return ApiResultOk(await Service.GetAssignedPersonalByDutyIdWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize));
     }
-
+    [HttpGet("DownloadPersonalReportForSpecificDuty")]
+    public async Task<IActionResult> DownloadPersonalReportForSpecificDuty([FromQuery] string dutyId)
+    {
+        var fileBytes = await Service.DownloadPersonalReportForSpecificDuty(dutyId);
+        var docName = $"{dutyId}_OdemeListesi.xlsx";
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
+    }
 }
