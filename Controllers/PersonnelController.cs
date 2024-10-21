@@ -19,4 +19,9 @@ public class PersonnelController : BaseController<PersonnelController, IPersonal
     {
         return ApiResultOk(await Service.GetPersonalWithPagination(pageNumber, pageSize));
     }
+    [HttpPost("Filter")]
+    public async Task<OkObjectResult> FilterPersonnel([FromBody] FilterPersonnel filterPersonnel)
+    {
+        return ApiResultOk(await Service.FilterPersonnel(filterPersonnel));
+    }
 }

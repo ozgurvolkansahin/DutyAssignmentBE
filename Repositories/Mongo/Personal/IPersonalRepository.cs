@@ -13,6 +13,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task<int> GetTotalPaymentsAsync();
         Task<int> GetTotalAssignedPersonal();
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize);
-
+        Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
     }
 }

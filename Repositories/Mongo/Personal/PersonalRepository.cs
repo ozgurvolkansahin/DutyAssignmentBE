@@ -88,7 +88,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             return Convert.ToInt32(await _collection.CountDocumentsAsync(filter));
         }
 
-                public async Task<int> GetTotalAssignedPersonal()
+        public async Task<int> GetTotalAssignedPersonal()
         {
             // get total count of PoliceAttendants and ResponsibleManagers
             var pipeline = new BsonDocument[]
@@ -104,7 +104,53 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 })            };
             // return count property from result
             return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
-            
+
+        }
+
+        public async Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filter)
+        {
+            var filterBuilder = Builders<IPersonalExcel>.Filter;
+            var filters = new List<FilterDefinition<IPersonalExcel>>();
+
+            if (!string.IsNullOrEmpty(filter.sicil))
+                filters.Add(filterBuilder.Regex(x => x.Sicil, new BsonRegularExpression(filter.sicil, "i")));
+
+            if (!string.IsNullOrEmpty(filter.tcKimlik))
+                filters.Add(filterBuilder.Regex(x => x.TcKimlik, new BsonRegularExpression(filter.tcKimlik, "i")));
+
+            if (!string.IsNullOrEmpty(filter.rutbe))
+                filters.Add(filterBuilder.Eq(x => x.Rutbe, filter.rutbe));
+
+            if (!string.IsNullOrEmpty(filter.birim))
+                filters.Add(filterBuilder.Eq(x => x.Birim, filter.birim));
+
+            if (!string.IsNullOrEmpty(filter.nokta))
+                filters.Add(filterBuilder.Eq(x => x.Nokta, filter.nokta));
+
+            if (!string.IsNullOrEmpty(filter.grup))
+                filters.Add(filterBuilder.Eq(x => x.Grup, filter.grup));
+
+            if (!string.IsNullOrEmpty(filter.tel))
+                filters.Add(filterBuilder.Eq(x => x.Tel, filter.tel));
+
+            if (!string.IsNullOrEmpty(filter.iban))
+                filters.Add(filterBuilder.Eq(x => x.Iban, filter.iban));
+
+            if (!string.IsNullOrEmpty(filter.isim))
+            {
+                var normalizedAd = filter.isim.ToUpper(new System.Globalization.CultureInfo("tr-TR")); // Türkçe karakterler
+                var adFilter = filterBuilder.Regex(x => x.Ad, new BsonRegularExpression(normalizedAd, "i"));
+                var soyadFilter = filterBuilder.Regex(x => x.Soyad, new BsonRegularExpression(normalizedAd, "i"));
+                filters.Add(filterBuilder.Or(adFilter, soyadFilter));
+
+            }
+            // Diğer filtreler burada...
+
+            var finalFilter = filterBuilder.And(filters);
+            var filteredPersonnel = await _collection.Find(finalFilter).Skip((filter.page - 1) * filter.pageSize).Limit(filter.pageSize).ToListAsync();
+            var total = Convert.ToInt32(await _collection.CountDocumentsAsync(finalFilter));
+            return new FilterPersonnelWithTotalCount { data = filteredPersonnel, total = total };
         }
     }
+
 }
