@@ -24,6 +24,20 @@ public class DutyService : IDutyService
     {
         return await _dutyRepository.GetDutiesAsync();
     }
+    public async Task<IEnumerable<IDuty>> GetDutiesByIdListWithPagination(string sicil, int page, int pageSize, bool isPaidDuties)
+    {
+        var personnel = await _personalRepository.GetPersonalById(new List<string> { sicil });
+        var personnelList = personnel?.ToList();
+        if (personnelList == null || personnelList.Count == 0 || personnelList[0].Duties == null)
+        {
+            return Enumerable.Empty<IDuty>();
+        }
+        if (isPaidDuties)
+        {
+            return await _dutyRepository.GetDutiesByIdWithPagination(personnelList[0].PaidDuties, page, pageSize);
+        }
+        return await _dutyRepository.GetDutiesByIdWithPagination(personnelList[0].Duties, page, pageSize);
+    }
     public async Task<object> InsertDuties()
     {
         var files = await ProcessDutyExcelFilesAsync();

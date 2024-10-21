@@ -22,6 +22,8 @@ public class PersonalExcel : IPersonalExcel
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public required string Id { get; set; }
+    public int DutiesCount { get; set; }
+    public int PaidDutiesCount { get; set; }
 }
 
 public class PersonalInDuty

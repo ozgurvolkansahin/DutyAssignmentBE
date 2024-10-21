@@ -1,3 +1,4 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using MongoDB.Bson;
@@ -10,6 +11,45 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         public PersonalRepository() : base("personal")
         {
 
+        }
+
+        // get all personal with pagination
+        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize)
+        {
+            // find, skip, and limit documents; then empty Duties and PaidDuties array and set their count to DutiesCount and PaidDutiesCount before emptying them
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$project", new BsonDocument
+                {
+                    { "SN", 1 },
+                    { "Sicil", 1 },
+                    { "TcKimlik", 1 },
+                    { "Ad", 1 },
+                    { "Soyad", 1 },
+                    { "Rutbe", 1 },
+                    { "Birim", 1 },
+                    { "Nokta", 1 },
+                    { "Grup", 1 },
+                    { "Tel", 1 },
+                    { "Iban", 1 },
+                    // { "Duties", 1 },
+                    // { "PaidDuties", 1 },
+                    { "DutiesCount", new BsonDocument("$size", "$Duties") },
+                    { "PaidDutiesCount", new BsonDocument("$size", "$PaidDuties") }
+                }),
+                new BsonDocument("$skip", (page - 1) * pageSize),
+                new BsonDocument("$limit", pageSize)
+            };
+            // return result
+            return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>
+            {
+                data = await _collection.Aggregate<IPersonalExcel>(pipeline).ToListAsync(),
+                total = Convert.ToInt32(await _collection.CountDocumentsAsync(new BsonDocument()))
+            };
+
+            // var personnel = await _collection.Find(new BsonDocument()).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+            // var count = Convert.ToInt32(await _collection.CountDocumentsAsync(new BsonDocument()));
+            // return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel> { data = personnel, total = count };
         }
 
         public async Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities)

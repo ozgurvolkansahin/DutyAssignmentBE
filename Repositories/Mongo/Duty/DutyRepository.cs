@@ -19,5 +19,16 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var filter = Builders<IDuty>.Filter.In(x => x.DutyId, ids);
             return await _collection.Find(filter).ToListAsync();
         }
+
+        public async Task<IEnumerable<IDuty>> GetDutiesByIdWithPagination(IEnumerable<string> dutyIds, int page, int pageSize)
+        {
+            var filter = Builders<IDuty>.Filter.In(d => d.DutyId, dutyIds);
+            var skip = (page - 1) * pageSize;
+            var duties = await _collection.Find(filter)
+                                        .Skip(skip)
+                                        .Limit(pageSize)
+                                        .ToListAsync();
+            return duties;
+        }
     }
 }

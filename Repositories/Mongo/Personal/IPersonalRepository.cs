@@ -1,3 +1,4 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
@@ -11,6 +12,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task RemoveDutyIdFromPaidDutyArray(string dutyId);
         Task<int> GetTotalPaymentsAsync();
         Task<int> GetTotalAssignedPersonal();
+        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize);
 
     }
 }

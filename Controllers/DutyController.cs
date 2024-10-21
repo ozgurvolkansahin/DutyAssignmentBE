@@ -1,3 +1,4 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Repositories.Mongo.Duty;
 using DutyAssignment.Services;
@@ -18,6 +19,11 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     public async Task<OkObjectResult> GetDuties()
     {
         return ApiResultOk(await Service.GetDuties());
+    }
+    [HttpPost("GetDutiesByIdList")]
+    public async Task<OkObjectResult> GetDutiesByIdList([FromBody] GetDutiesByIdList dutyIds)
+    {
+        return ApiResultOk(await Service.GetDutiesByIdListWithPagination(dutyIds.sicil, dutyIds.page, dutyIds.pageSize, dutyIds.isPaidDuties));
     }
     [HttpGet("ProcessDutyExcelFiles")]
     public OkObjectResult ProcessDutyExcelFiles()
