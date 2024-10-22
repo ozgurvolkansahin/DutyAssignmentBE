@@ -119,22 +119,22 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 filters.Add(filterBuilder.Regex(x => x.TcKimlik, new BsonRegularExpression(filter.tcKimlik, "i")));
 
             if (!string.IsNullOrEmpty(filter.rutbe))
-                filters.Add(filterBuilder.Eq(x => x.Rutbe, filter.rutbe));
+                filters.Add(filterBuilder.Regex(x => x.Rutbe, new BsonRegularExpression(filter.rutbe, "i")));
 
             if (!string.IsNullOrEmpty(filter.birim))
-                filters.Add(filterBuilder.Eq(x => x.Birim, filter.birim));
+                filters.Add(filterBuilder.Regex(x => x.Birim, new BsonRegularExpression(filter.birim, "i")));
 
             if (!string.IsNullOrEmpty(filter.nokta))
-                filters.Add(filterBuilder.Eq(x => x.Nokta, filter.nokta));
+                filters.Add(filterBuilder.Regex(x => x.Nokta, new BsonRegularExpression(filter.nokta, "i")));
 
             if (!string.IsNullOrEmpty(filter.grup))
-                filters.Add(filterBuilder.Eq(x => x.Grup, filter.grup));
+                filters.Add(filterBuilder.Regex(x => x.Grup, new BsonRegularExpression(filter.grup, "i")));
 
             if (!string.IsNullOrEmpty(filter.tel))
-                filters.Add(filterBuilder.Eq(x => x.Tel, filter.tel));
+                filters.Add(filterBuilder.Regex(x => x.Tel, new BsonRegularExpression(filter.tel, "i")));
 
             if (!string.IsNullOrEmpty(filter.iban))
-                filters.Add(filterBuilder.Eq(x => x.Iban, filter.iban));
+                filters.Add(filterBuilder.Regex(x => x.Iban, new BsonRegularExpression(filter.iban, "i")));
 
             if (!string.IsNullOrEmpty(filter.isim))
             {
