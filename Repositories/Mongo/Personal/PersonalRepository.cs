@@ -106,6 +106,20 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
 
         }
+        public async Task<int> GetTotalPaymentsDone()
+        {
+            // get total count of PoliceAttendants and ResponsibleManagers
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "null" },
+                    { "totalDutiesCount", new BsonDocument("$sum", new BsonDocument("$size", "$PaidDuties")) }
+                })};
+            // return count property from result
+            return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
+
+        }
 
         public async Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filter)
         {

@@ -24,6 +24,7 @@ public class PersonalExcel : IPersonalExcel
     public required string Id { get; set; }
     public int DutiesCount { get; set; }
     public int PaidDutiesCount { get; set; }
+    public bool Priority { get; set; }
 }
 
 public class PersonalInDuty

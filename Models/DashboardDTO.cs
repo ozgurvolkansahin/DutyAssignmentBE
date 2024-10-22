@@ -11,9 +11,15 @@ public class DashboardDTO : IDashboardDTO
     public int TotalPayments { get; set; }
     public int TotalAssignedPersonal { get; set; }
     public int WaitingAssignmentsCount { get; set; }
+    public int TotalPaymentsDone { get; set; }
     public IEnumerable<IAssignmentLookupDuty> AssignmentLookupDuty { get; set; }
     // constructor
-    public DashboardDTO(IDashboard dashboard, int totalDuties, int totalAssignments, int totalPayments, IEnumerable<IAssignmentLookupDuty> assignmentLookupDuty, int totalAssignedPersonal, int waitingAssignmentsCount)
+    public DashboardDTO(IDashboard dashboard, int totalDuties,
+    int totalAssignments,
+    int totalPayments, IEnumerable<IAssignmentLookupDuty> assignmentLookupDuty,
+    int totalAssignedPersonal,
+    int waitingAssignmentsCount,
+    int totalPaymentsDone)
     {
         Dashboard = dashboard;
         TotalDuties = totalDuties;
@@ -22,5 +28,6 @@ public class DashboardDTO : IDashboardDTO
         AssignmentLookupDuty = assignmentLookupDuty;
         TotalAssignedPersonal = totalAssignedPersonal;
         WaitingAssignmentsCount = waitingAssignmentsCount;
+        TotalPaymentsDone = totalPaymentsDone;
     }
 }

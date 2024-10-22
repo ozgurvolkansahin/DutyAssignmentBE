@@ -17,5 +17,6 @@ namespace DutyAssignment.Interfaces
         IEnumerable<string> PaidDuties { get; set; }
         int DutiesCount { get; set; }
         int PaidDutiesCount { get; set; }
+        bool Priority { get; set; }
     }
 }

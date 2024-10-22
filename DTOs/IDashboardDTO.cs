@@ -11,6 +11,7 @@ namespace DutyAssignment.DTOs
         int TotalAssignments { get; set; }
         int TotalPayments { get; set; }
         int WaitingAssignmentsCount { get; set; }
+        int TotalPaymentsDone { get; set; }
         IEnumerable<IAssignmentLookupDuty> AssignmentLookupDuty { get; set; }
         int TotalAssignedPersonal { get; set; }
     }

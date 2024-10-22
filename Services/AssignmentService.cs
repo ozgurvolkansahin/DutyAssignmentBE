@@ -72,10 +72,22 @@ public class AssignmentService : IAssignmentService
         // add them to selectedPeople
         var responsibleManagers = await _personalRepository.GetPersonalById(assignment.ResponsibleManagers);
         selectedPeople = selectedPeople.Concat(responsibleManagers.Cast<PersonalExcel>().ToList()).ToList();
-
         // remove ResponsibleManagers from personals
         personals = personals.Where(x => !assignment.ResponsibleManagers.Contains(x.Sicil)).ToList();
-
+        
+        // add a property to each personal in personals which will be assigned by the formula below
+        // ((number of duties assigned to a person) / 3) - (number of paid duties assigned to a person)
+        foreach (var x in personals)
+        {
+            x.Priority = ((x.Duties.Count() / 3) - x.PaidDuties.Count()) >= 1 ? true : false;
+        }
+        var prioritizedPersonnel = personals.Where(x => x.Priority == true).ToList();
+        // if there are people with priority, select them first
+        if (prioritizedPersonnel.Count() > 0)
+        {
+            selectedPeople = selectedPeople.Concat(prioritizedPersonnel.Cast<PersonalExcel>().ToList()).ToList();
+            personals = personals.Where(x => !prioritizedPersonnel.Contains(x)).ToList();
+        }
         // find min and max number of paid duties assigned to a person assigned to this duty
         int min = personals.Min(x => x.PaidDuties.Count());
         int max = personals.Max(x => x.PaidDuties.Count());

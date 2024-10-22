@@ -13,6 +13,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task RemoveDutyIdFromPaidDutyArray(string dutyId);
         Task<int> GetTotalPaymentsAsync();
         Task<int> GetTotalAssignedPersonal();
+        Task<int> GetTotalPaymentsDone();
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize);
         Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
         Task<UpdateResult> ResetAssignment(string dutyId);
