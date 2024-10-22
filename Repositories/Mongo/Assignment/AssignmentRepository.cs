@@ -263,6 +263,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
         public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
         {
+            var normalizedDes = filterAssignments.dutyDescription.ToUpper(new System.Globalization.CultureInfo("tr-TR"));
             var pipeline = new BsonDocument[]
             {
                     new BsonDocument("$match", new BsonDocument {
@@ -283,7 +284,12 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // use filtersAssignments.dutyDescription to filter also
             new BsonDocument("$match", new BsonDocument
             {
-                { "Duty.duty_description", new BsonDocument("$regex", filterAssignments.dutyDescription) }
+                { "Duty.duty_description", new BsonDocument
+                    {
+                        { "$regex", normalizedDes },
+                        { "$options", "i" }  // Case-insensitive arama için "i" kullanılıyor
+                    }
+                }
             }),
             new BsonDocument("$addFields", new BsonDocument
                 {

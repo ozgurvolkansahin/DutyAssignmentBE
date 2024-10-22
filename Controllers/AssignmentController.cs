@@ -47,7 +47,7 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     }
     
     [HttpGet("ResetAssignment")]
-    public async Task<OkObjectResult> FilterAssignments([FromQuery] string dutyId)
+    public async Task<OkObjectResult> ResetAssignment([FromQuery] string dutyId)
     {
         return ApiResultOk(await Service.ResetAssignment(dutyId));
     }
