@@ -151,6 +151,19 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var total = Convert.ToInt32(await _collection.CountDocumentsAsync(finalFilter));
             return new FilterPersonnelWithTotalCount { data = filteredPersonnel, total = total };
         }
+        public async Task<UpdateResult> ResetAssignment(string dutyId)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.And(
+                Builders<IPersonalExcel>.Filter.Exists(p => p.PaidDuties, true),
+                Builders<IPersonalExcel>.Filter.Type(p => p.PaidDuties, BsonType.Array),
+                // find records that have the dutyId in their PaidDuties array
+                Builders<IPersonalExcel>.Filter.AnyEq(p => p.PaidDuties, dutyId)
+            );
+
+            var update = Builders<IPersonalExcel>.Update.Set("PaidDuties", new BsonArray());
+
+            return await _collection.UpdateManyAsync(filter, update);
+        }
     }
 
 }

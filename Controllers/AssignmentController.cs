@@ -40,9 +40,15 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
     }
 
-        [HttpPost("Filter")]
+    [HttpPost("Filter")]
     public async Task<OkObjectResult> FilterAssignments([FromBody] FilterAssignments filterAssignments)
     {
         return ApiResultOk(await Service.FilterAssignments(filterAssignments));
+    }
+    
+    [HttpGet("ResetAssignment")]
+    public async Task<OkObjectResult> FilterAssignments([FromQuery] string dutyId)
+    {
+        return ApiResultOk(await Service.ResetAssignment(dutyId));
     }
 }

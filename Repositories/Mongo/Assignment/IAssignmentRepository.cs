@@ -2,6 +2,7 @@ using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
 {
@@ -16,5 +17,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task<int> GetWaitingAssignmentsCount();
       Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize);
       Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
+      Task<UpdateResult> ResetAssignment(string dutyId);
     }
 }

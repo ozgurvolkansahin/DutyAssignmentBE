@@ -124,4 +124,9 @@ public class AssignmentService : IAssignmentService
     {
         return await _assignmentRepository.FilterAssignments(filterAssignments);
     }
+    public async Task<UpdateResult> ResetAssignment(string dutyId)
+    {
+        await _personalRepository.ResetAssignment(dutyId);
+        return await _assignmentRepository.ResetAssignment(dutyId);
+    }
 }

@@ -2,6 +2,7 @@ using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace DutyAssignment.Services
 {
@@ -13,5 +14,6 @@ namespace DutyAssignment.Services
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize);
         Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId);
         Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
+        Task<UpdateResult> ResetAssignment(string dutyId);
     }
 }

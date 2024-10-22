@@ -328,7 +328,22 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             {
                 data = result,
                 total = totalCount ?? 0
-            };            
+            };
+        }
+        public async Task<UpdateResult> ResetAssignment(string dutyId)
+        {
+            var filter = Builders<IAssignment>.Filter.And(
+                Builders<IAssignment>.Filter.Eq(a => a.DutyId, dutyId),
+                Builders<IAssignment>.Filter.Exists(a => a.PaidPersonal, true),
+                Builders<IAssignment>.Filter.Type(a => a.PaidPersonal, BsonType.Array)
+            );
+
+            var update = Builders<IAssignment>.Update
+                .Set(a => a.PaidPersonal, new List<string>())
+                .Set(a => a.IsActive, false);
+
+            return await _collection.UpdateManyAsync(filter, update);
+
         }
     }
 }
