@@ -30,6 +30,7 @@ namespace DutyAssignment.Configuration.Config
             LoadOptions options = Env.TraversePath();
             List<KeyValuePair<string, string>> list = Env.Load(".env", options).ToList();
             string path = (".env." + EnvName).TrimEnd('.');
+            Console.WriteLine($"Loading configuration from {path}");
             list.AddRange(Env.Load(path, options));
         }
     }

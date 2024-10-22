@@ -77,9 +77,10 @@ public class AssignmentService : IAssignmentService
         
         // add a property to each personal in personals which will be assigned by the formula below
         // ((number of duties assigned to a person) / 3) - (number of paid duties assigned to a person)
+        // add +1 because this may be their 3rd duty
         foreach (var x in personals)
         {
-            x.Priority = ((x.Duties.Count() / 3) - x.PaidDuties.Count()) >= 1 ? true : false;
+            x.Priority = (((x.Duties.Count()+1) / 3) - x.PaidDuties.Count()) >= 1 ? true : false;
         }
         var prioritizedPersonnel = personals.Where(x => x.Priority == true).ToList();
         // if there are people with priority, select them first

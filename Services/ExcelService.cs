@@ -117,7 +117,7 @@ public class ExcelService : IExcelService
     {
         // Excel şablonunun yolunu belirt (eğer var olan bir şablonu kullanıyorsan)
         // Ana dizinde Templates klasörü altında report_template.xlsx dosyası var, buraya yolunu belirtiyoruz
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "report_template.xlsx");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "report_template.xlsx");
         using (var package = new ExcelPackage(new FileInfo(templatePath)))
         {
             var worksheet = package.Workbook.Worksheets[0]; // İlk çalışma sayfasını al

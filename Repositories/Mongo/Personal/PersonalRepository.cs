@@ -158,10 +158,14 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 filters.Add(filterBuilder.Or(adFilter, soyadFilter));
 
             }
-            // Diğer filtreler burada...
-
             var finalFilter = filterBuilder.And(filters);
             var filteredPersonnel = await _collection.Find(finalFilter).Skip((filter.page - 1) * filter.pageSize).Limit(filter.pageSize).ToListAsync();
+            // set dutiesCount and paidDutiesCount properties for each filtered personnel
+            foreach (var personnel in filteredPersonnel)
+            {
+                personnel.DutiesCount = personnel.Duties.Count();
+                personnel.PaidDutiesCount = personnel.PaidDuties.Count();
+            }
             var total = Convert.ToInt32(await _collection.CountDocumentsAsync(finalFilter));
             return new FilterPersonnelWithTotalCount { data = filteredPersonnel, total = total };
         }
@@ -174,8 +178,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 Builders<IPersonalExcel>.Filter.AnyEq(p => p.PaidDuties, dutyId)
             );
 
-            var update = Builders<IPersonalExcel>.Update.Set("PaidDuties", new BsonArray());
-
+            var update = Builders<IPersonalExcel>.Update.Pull(p => p.PaidDuties, dutyId);
             return await _collection.UpdateManyAsync(filter, update);
         }
     }

@@ -3,6 +3,7 @@ using DutyAssignment.Mapper;
 using DutyAssignment.Models;
 using DutyAssignment.Repositories.Mongo.Duty;
 using DutyAssignment.Services;
+using DutyAssignment.Configuration.Config;
 using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 BsonMapper.Map();
+DotNetEnv.Env.Load();
+Console.WriteLine($"Loading configuration from {Config.MongoUrl}");
+Console.WriteLine($"MONGO_URL: {DotNetEnv.Env.GetString("MONGO_URL")}");
+Console.WriteLine($"Current Directory: {Directory.GetCurrentDirectory()}");
+
 // setup cors
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
@@ -21,7 +27,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:3000");
+                          builder.WithOrigins("http://localhost:3000",
+                          "localhost:8080");
                           builder.AllowAnyHeader();
                             builder.AllowAnyMethod();
                       });
