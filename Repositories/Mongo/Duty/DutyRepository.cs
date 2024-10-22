@@ -1,3 +1,4 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using MongoDB.Driver;
@@ -29,6 +30,19 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                                         .Limit(pageSize)
                                         .ToListAsync();
             return duties;
+        }
+        public async Task<IEnumerable<IDuty>> GetDutiesByIdWithPaginationAndFilter(FilterAssignments filterAssignments)
+        {
+            // search with regex
+            var filter = Builders<IDuty>.Filter.Regex(x => x.DutyId, new MongoDB.Bson.BsonRegularExpression(filterAssignments.dutyId)) & 
+                Builders<IDuty>.Filter.Regex(x => x.Description, new MongoDB.Bson.BsonRegularExpression(filterAssignments.dutyDescription));
+            var skip = (filterAssignments.page - 1) * filterAssignments.pageSize;
+            var duties = await _collection.Find(filter)
+                                        .Skip(skip)
+                                        .Limit(filterAssignments.pageSize)
+                                        .ToListAsync();
+            return duties;
+
         }
     }
 }

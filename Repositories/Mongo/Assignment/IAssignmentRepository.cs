@@ -15,5 +15,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task<IEnumerable<IAssignmentLookupDuty>> SortAssignmentsByDateAndGetByPage(int page, int pageSize);
       Task<int> GetWaitingAssignmentsCount();
       Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize);
+      Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
     }
 }

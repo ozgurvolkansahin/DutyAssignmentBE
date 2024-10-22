@@ -1,3 +1,4 @@
+using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
@@ -7,5 +8,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task<IEnumerable<IDuty>> GetDutiesAsync();
       Task<IEnumerable<IDuty>> GetDutiesById(IEnumerable<string> ids);
       Task<IEnumerable<IDuty>> GetDutiesByIdWithPagination(IEnumerable<string> dutyIds, int page, int pageSize);
+      Task<IEnumerable<IDuty>> GetDutiesByIdWithPaginationAndFilter(FilterAssignments filterAssignments);
     }
 }

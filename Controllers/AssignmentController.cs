@@ -39,4 +39,10 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
         var docName = $"{dutyId}_OdemeListesi.xlsx";
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
     }
+
+        [HttpPost("Filter")]
+    public async Task<OkObjectResult> FilterAssignments([FromBody] FilterAssignments filterAssignments)
+    {
+        return ApiResultOk(await Service.FilterAssignments(filterAssignments));
+    }
 }

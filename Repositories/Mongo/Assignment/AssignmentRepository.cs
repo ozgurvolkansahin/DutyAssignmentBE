@@ -9,9 +9,10 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 {
     public class AssignmentRepository : MongoRepository<IAssignment, string>, IAssignmentRepository
     {
-        public AssignmentRepository() : base("assignment")
+        private readonly IDutyRepository _dutyRepository;
+        public AssignmentRepository(IDutyRepository dutyRepository) : base("assignment")
         {
-
+            _dutyRepository = dutyRepository;
         }
 
         public async Task<IAssignment> GeAssignmentByDutyId(string dutyId)
@@ -176,16 +177,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 { "ResponsibleManagersCount", "$ResponsibleManagersCount" }
             })
         }            })
-            // new BsonDocument("$project", new BsonDocument
-            // {
-            //     { "Duty", 1 },
-            //     { "date", 1 },
-            //     { "DutyId", 1 },
-            //     // Arraylerin boyutlarını projelendiriyoruz
-            //     { "PaidPersonalCount", new BsonDocument("$size", "$PaidPersonal") },
-            //     { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
-            //     { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
-            // })
             };
             var resultDocument = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
             var result = resultDocument?["data"].AsBsonArray.Select(p =>
@@ -268,6 +259,76 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 total = totalCount ?? 0,
                 data = result ?? new List<PersonalExcel>()
             }; ;
+        }
+
+        public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
+        {
+            var pipeline = new BsonDocument[]
+            {
+                    new BsonDocument("$match", new BsonDocument {
+                { "PaidPersonal", new BsonDocument("$ne", new BsonArray()) }
+            }),
+            // use filterAssignments to filter also
+            new BsonDocument("$match", new BsonDocument
+            {
+                { "DutyId", new BsonDocument("$regex", filterAssignments.dutyId) },
+            }),
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "duty" },
+                { "localField", "DutyId" },
+                { "foreignField", "duty_id" },
+                { "as", "Duty" }
+            }),
+            // use filtersAssignments.dutyDescription to filter also
+            new BsonDocument("$match", new BsonDocument
+            {
+                { "Duty.duty_description", new BsonDocument("$regex", filterAssignments.dutyDescription) }
+            }),
+            new BsonDocument("$addFields", new BsonDocument
+                {
+                    { "TotalCount", new BsonDocument("$size", "$Duty") }
+                }),
+            new BsonDocument("$unwind", "$Duty"),
+                new BsonDocument("$addFields", new BsonDocument
+    {
+        { "PaidPersonalCount", new BsonDocument("$size", "$PaidPersonal") },
+        { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
+        { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
+    }),
+            new BsonDocument("$sort", new BsonDocument("Duty.date", 1)),
+            new BsonDocument("$skip", (filterAssignments.page - 1) * filterAssignments.pageSize),
+            new BsonDocument("$limit", filterAssignments.pageSize),
+            // create one data and one total count properties
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", BsonNull.Value }, // Id alanı burada gruplama için gerekli ancak null yapılıyor
+                { "total", new BsonDocument("$first", "$TotalCount") },
+                // create data array consisting of Duty, PaidPersonalCount, PoliceAttendantsCount, ResponsibleManagersCount
+        { "data", new BsonDocument("$push", new BsonDocument
+            {
+                { "Duty", "$Duty" },
+                { "PaidPersonalCount", "$PaidPersonalCount" },
+                { "PoliceAttendantsCount", "$PoliceAttendantsCount" },
+                { "ResponsibleManagersCount", "$ResponsibleManagersCount" }
+            })
+        }            })
+            };
+            var resultDocument = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            var result = resultDocument?["data"].AsBsonArray.Select(p =>
+            {
+                var bsonDocument = p.AsBsonDocument;
+                var dutyDocument = bsonDocument["Duty"].AsBsonDocument;
+                dutyDocument.Remove("_id"); // Duty içindeki _id alanını kaldır
+                bsonDocument["Duty"] = dutyDocument;
+                return BsonSerializer.Deserialize<object>(bsonDocument);
+            }).ToList();
+            var totalCount = resultDocument?["total"].AsInt32;
+            return new FilterAssignmentsByFilter
+            {
+                data = result,
+                total = totalCount ?? 0
+            };            
         }
     }
 }

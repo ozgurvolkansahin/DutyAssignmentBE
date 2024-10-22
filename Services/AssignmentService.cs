@@ -119,4 +119,9 @@ public class AssignmentService : IAssignmentService
         var personnel = await _personalRepository.GetPersonalById(assignment.PaidPersonal.ToList());
         return _excelService.DownloadExcel(personnel);
     }
+
+    public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
+    {
+        return await _assignmentRepository.FilterAssignments(filterAssignments);
+    }
 }
