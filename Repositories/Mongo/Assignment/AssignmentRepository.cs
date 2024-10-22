@@ -149,10 +149,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 { "foreignField", "duty_id" },
                 { "as", "Duty" }
             }),
-            new BsonDocument("$addFields", new BsonDocument
-                {
-                    { "TotalCount", new BsonDocument("$size", "$Duty") }
-                }),
             new BsonDocument("$unwind", "$Duty"),
                 new BsonDocument("$addFields", new BsonDocument
     {
@@ -167,7 +163,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             new BsonDocument("$group", new BsonDocument
             {
                 { "_id", BsonNull.Value }, // Id alanı burada gruplama için gerekli ancak null yapılıyor
-                { "total", new BsonDocument("$first", "$TotalCount") },
                 // create data array consisting of Duty, PaidPersonalCount, PoliceAttendantsCount, ResponsibleManagersCount
         { "data", new BsonDocument("$push", new BsonDocument
             {
@@ -179,6 +174,14 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         }            })
             };
             var resultDocument = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            var pipeLineCount = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument {
+                { "PaidPersonal", new BsonDocument("$ne", new BsonArray()) }
+            }),
+            new BsonDocument("$count", "totalCount")
+            };
+            var countDocument = await _collection.Aggregate<BsonDocument>(pipeLineCount).FirstOrDefaultAsync();
             var result = resultDocument?["data"].AsBsonArray.Select(p =>
             {
                 var bsonDocument = p.AsBsonDocument;
@@ -190,7 +193,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // remove _id from all Duty objects
 
             // get TotalCount from result
-            var totalCount = resultDocument?["total"].AsInt32;
+            var totalCount = countDocument?["totalCount"].AsInt32;
             return new GetAssignedPersonalByDutyIdWithPaginationResult<object>
             {
                 total = totalCount ?? 0,

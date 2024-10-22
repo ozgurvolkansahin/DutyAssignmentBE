@@ -116,7 +116,8 @@ public class ExcelService : IExcelService
     public byte[] DownloadExcel(IEnumerable<IPersonalExcel> personalList)
     {
         // Excel şablonunun yolunu belirt (eğer var olan bir şablonu kullanıyorsan)
-        var templatePath = Path.Combine(ExcelPath, "report_template.xlsx");
+        // Ana dizinde Templates klasörü altında report_template.xlsx dosyası var, buraya yolunu belirtiyoruz
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "report_template.xlsx");
         using (var package = new ExcelPackage(new FileInfo(templatePath)))
         {
             var worksheet = package.Workbook.Worksheets[0]; // İlk çalışma sayfasını al
