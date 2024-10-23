@@ -86,8 +86,16 @@ public class AssignmentService : IAssignmentService
         // if there are people with priority, select them first
         if (prioritizedPersonnel.Count() > 0)
         {
-            selectedPeople = selectedPeople.Concat(prioritizedPersonnel.Cast<PersonalExcel>().ToList()).ToList();
-            personals = personals.Where(x => !prioritizedPersonnel.Contains(x)).ToList();
+            if (prioritizedPersonnel.Count() > numToSelect - responsibleManagers.Count())
+            {
+                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.OrderBy(x => x.PaidDuties.Count()).Take(numToSelect - responsibleManagers.Count()).Cast<PersonalExcel>().ToList()).ToList();
+                personals = personals.Where(x => !prioritizedPersonnel.Contains(x)).ToList();
+            }
+            else
+            {
+                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.Cast<PersonalExcel>().ToList()).ToList();
+                personals = personals.Where(x => !prioritizedPersonnel.Contains(x)).ToList();
+            }
         }
         // find min and max number of paid duties assigned to a person assigned to this duty
         int min = personals.Min(x => x.PaidDuties.Count());
