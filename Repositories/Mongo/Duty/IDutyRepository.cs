@@ -1,5 +1,6 @@
 using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
+using MongoDB.Driver;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
 {
@@ -9,5 +10,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
       Task<IEnumerable<IDuty>> GetDutiesById(IEnumerable<string> ids);
       Task<IEnumerable<IDuty>> GetDutiesByIdWithPagination(IEnumerable<string> dutyIds, int page, int pageSize);
       Task<IEnumerable<IDuty>> GetDutiesByIdWithPaginationAndFilter(FilterAssignments filterAssignments);
+      Task<DeleteResult> DeleteDuty(string dutyId);
     }
 }

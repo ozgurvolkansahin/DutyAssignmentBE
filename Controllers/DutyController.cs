@@ -40,4 +40,16 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     {
         return ApiResultOk(await Service.GetOccurrencesOfSpecificValues(specificValues));
     }
+    [HttpGet("Delete")]
+    public async Task<IActionResult> DeleteDuty([FromQuery] string dutyId)
+    {
+        try
+        {
+            return ApiResultOk(await Service.DeleteDuty(dutyId));
+        }
+        catch (Exception ex)
+        {
+            return ApiResultNotOk(ex.Message);
+        }
+    }
 }

@@ -99,7 +99,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             {
                     new BsonDocument("$match", new BsonDocument
             {
-        { "PaidPersonal", new BsonDocument("$eq", new BsonArray()) }
+        { "PaidPersonal", new BsonDocument("$eq", new BsonArray()) },
             }),
             new BsonDocument("$lookup", new BsonDocument
             {
@@ -107,12 +107,13 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 { "localField", "DutyId" },
                 { "foreignField", "duty_id" },
                 { "as", "Duty" }
-            }),                new BsonDocument("$addFields", new BsonDocument
-    {
-        { "PaidPersonalCount", new BsonDocument("$size", "$PaidPersonal") },
-        { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
-        { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
-    }),
+            }),
+            new BsonDocument("$addFields", new BsonDocument
+            {
+                { "PaidPersonalCount", new BsonDocument("$size", "$PaidPersonal") },
+                { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
+                { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
+            }),
             new BsonDocument("$unwind", "$Duty"),
             new BsonDocument("$sort", new BsonDocument("Duty.date", 1)),
             new BsonDocument("$skip", (page - 1) * pageSize),
@@ -156,7 +157,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         { "PoliceAttendantsCount", new BsonDocument("$size", "$PoliceAttendants") },
         { "ResponsibleManagersCount", new BsonDocument("$size", "$ResponsibleManagers") }
     }),
-            new BsonDocument("$sort", new BsonDocument("Duty.date", 1)),
+            new BsonDocument("$sort", new BsonDocument("AssignmentDate", -1)),
             new BsonDocument("$skip", (pageNumber - 1) * pageSize),
             new BsonDocument("$limit", pageSize),
             // create one data and one total count properties
@@ -192,9 +193,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             }).ToList();
             // remove _id from all Duty objects
 
+            
             // get TotalCount from result
             var totalCount = countDocument?["totalCount"].AsInt32;
             return new GetAssignedPersonalByDutyIdWithPaginationResult<object>
+            
             {
                 total = totalCount ?? 0,
                 data = result
@@ -353,6 +356,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
             return await _collection.UpdateManyAsync(filter, update);
 
+        }
+        public async Task<DeleteResult> DeleteAssignment(string dutyId)
+        {
+            var filter = Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId);
+            return await _collection.DeleteOneAsync(filter);
         }
     }
 }

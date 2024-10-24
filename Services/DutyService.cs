@@ -117,12 +117,31 @@ public class DutyService : IDutyService
             LastUpdate = dateTime,
             AssignmentDate = dateTime,
             IsActive = false,
-            PaidPersonal = new List<string>()
+            PaidPersonal = new List<string>(),
         });
     }
     public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)
     {
         var result = await _assignmentRepository.GetOccurrencesOfSpecificValues(specificValues);
         return result;
+    }
+    public async Task<DeleteResult> DeleteDuty(string dutyId)
+    {
+        var assignment = await _assignmentRepository.GeAssignmentByDutyId(dutyId);
+        if (assignment != null && (assignment.PaidPersonal.Count() > 0 || assignment.IsActive == true))
+        {
+            throw new Exception("ASSIGNMENT_EXISTS");
+        }
+
+        // we will delete the personnel that are only assigned to this duty
+        // because dashboard should not count them as assigned to any duty 
+        var personal = await _personalRepository.GetPersonalById(assignment.ResponsibleManagers.Concat(assignment.PoliceAttendants).ToList());
+        var personalOnlyInThisDuty = personal.Where(x => x.Duties.Contains(dutyId) && x.Duties.Count() == 1).ToList();
+        if (personalOnlyInThisDuty.Count() > 0)
+        {
+            await _personalRepository.DeleteManyPersonnel(personalOnlyInThisDuty.Select(x => x.Sicil).ToList());
+        }
+        await _assignmentRepository.DeleteAssignment(dutyId);
+        return await _dutyRepository.DeleteDuty(dutyId);
     }
 }

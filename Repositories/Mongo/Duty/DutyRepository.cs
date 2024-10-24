@@ -1,6 +1,5 @@
 using DutyAssignment.DTOs;
 using DutyAssignment.Interfaces;
-using DutyAssignment.Models;
 using MongoDB.Driver;
 
 namespace DutyAssignment.Repositories.Mongo.Duty
@@ -9,7 +8,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
     {
         public DutyRepository() : base("duty")
         {
-
         }
         public async Task<IEnumerable<IDuty>> GetDutiesAsync()
         {
@@ -43,6 +41,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                                         .ToListAsync();
             return duties;
 
+        }
+        public async Task<DeleteResult> DeleteDuty(string dutyId)
+        {
+            var filter = Builders<IDuty>.Filter.Eq(x => x.DutyId, dutyId);
+            return await _collection.DeleteOneAsync(filter);
         }
     }
 }

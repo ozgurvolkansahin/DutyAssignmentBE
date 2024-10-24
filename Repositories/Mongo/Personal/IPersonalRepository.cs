@@ -17,5 +17,6 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize);
         Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
         Task<UpdateResult> ResetAssignment(string dutyId);
+        Task<DeleteResult> DeleteManyPersonnel(List<string> sicil);
     }
 }

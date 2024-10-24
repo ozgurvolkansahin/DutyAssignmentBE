@@ -181,6 +181,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var update = Builders<IPersonalExcel>.Update.Pull(p => p.PaidDuties, dutyId);
             return await _collection.UpdateManyAsync(filter, update);
         }
+        public async Task<DeleteResult> DeleteManyPersonnel(List<string> sicil)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            return await _collection.DeleteManyAsync(filter);
+        }
     }
 
 }
