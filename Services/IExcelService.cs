@@ -5,9 +5,9 @@ namespace DutyAssignment.Services
 {
     public interface IExcelService
     {
-        void ReadPersonalExcel();
-        List<string> FindFiles();
-        PersonalInDuty ReadDutyFile(string filePath);
+        List<string> FindFiles(int type);
+        PersonalInDuty ReadDutyFile(string filePath, int type);
         byte[] DownloadExcel(IEnumerable<IPersonalExcel> personalList);
+        List<PaidPersonnelInDuty> ProcessPaymentFileExcelAndReturnPersonnel();
     }
 }

@@ -24,3 +24,8 @@ public class PreviousAssignments {
     public IEnumerable<string> Personal { get; set; }
     public DateTime Date { get; set; }
 }
+
+public class PaidPersonnelInDuty {
+    public IEnumerable<string> Personnel { get; set; }
+    public string DutyId { get; set; }
+}

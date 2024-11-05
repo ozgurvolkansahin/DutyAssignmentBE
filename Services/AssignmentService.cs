@@ -65,6 +65,8 @@ public class AssignmentService : IAssignmentService
         }
         // merge ResponsibleManagers and PoliceAttendants arrays as BsonArray
         var personals = await _personalRepository.GetPersonalById(assignment.PoliceAttendants);
+        // remove personals whos Birim is İlDışı Tayin
+        personals = personals.Where(x => x.Birim != "İlDışı Tayin").ToList();
         // List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
         List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
 
@@ -149,5 +151,21 @@ public class AssignmentService : IAssignmentService
     {
         await _personalRepository.ResetAssignment(dutyId);
         return await _assignmentRepository.ResetAssignment(dutyId);
+    }
+    public async Task<string> ProcessPaidDuties()
+    {
+        var personnel = _excelService.ProcessPaymentFileExcelAndReturnPersonnel();
+        foreach (var person in personnel)
+        {
+            // get dutyId in person
+            
+            var assignment = await _assignmentRepository.GeAssignmentByDutyId(person.DutyId);
+            if (assignment.PaidPersonal.Count() == 0) {
+                await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList());
+                await _personalRepository.PushDutyIdToDutyArray(person.DutyId, person.Personnel.ToList());
+                await _personalRepository.PushDutyIdToPaidDutyArray(person.DutyId, person.Personnel.ToList());
+            }
+        }
+        return personnel.Count().ToString();
     }
 }

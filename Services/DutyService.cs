@@ -1,3 +1,4 @@
+using DutyAssignment.Enum;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using DutyAssignment.Repositories.Mongo.Duty;
@@ -38,15 +39,18 @@ public class DutyService : IDutyService
         }
         return await _dutyRepository.GetDutiesByIdWithPagination(personnelList[0].Duties, page, pageSize);
     }
-    public async Task<object> InsertDuties()
+    public async Task<object> InsertDuties(int type)
     {
-        var files = await ProcessDutyExcelFilesAsync();
+        var files = await ProcessDutyExcelFilesAsync(type);
         var records = await _dutyRepository.GetDutiesById(files.Select(x => x.DutyId).ToList());
         // we only want to insert records that do not exist in the database
         files = files.Where(x => !records.Any(y => y.DutyId == x.DutyId)).ToList();
         if (files.Count() != 0)
         {
             await _dutyRepository.InsertManyAsync(files);
+        }
+        if (type == (int)PersonnelTypeEnum.CEVIK) {
+
         }
         return new
         {
@@ -55,22 +59,27 @@ public class DutyService : IDutyService
         };
     }
 
-    public async Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync()
+    public async Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync(int type)
     {
-        List<string> files = _excelService.FindFiles();
-        return await PrepareProcessedDutiesListAsync(files);
+        List<string> files = _excelService.FindFiles(type);
+        return await PrepareProcessedDutiesListAsync(files, type);
     }
-    private async Task<IEnumerable<IDuty>> PrepareProcessedDutiesListAsync(List<string> files)
+    private async Task<IEnumerable<IDuty>> PrepareProcessedDutiesListAsync(List<string> files, int type)
     {
         List<IDuty> duties = new List<IDuty>();
         foreach (string file in files)
         {
-            PersonalInDuty personalInDuty = _excelService.ReadDutyFile(file + ".xlsx");
-            await InsertPersonal(personalInDuty.ResponsibleManagers);
-            await InsertPersonal(personalInDuty.PoliceAttendants);
+            PersonalInDuty personalInDuty = _excelService.ReadDutyFile(file + ".xlsx", type);
+            await InsertPersonal(personalInDuty.ResponsibleManagers, type);
+            await InsertPersonal(personalInDuty.PoliceAttendants, type);
             _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty);
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList());
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList());
+            if (type == (int)PersonnelTypeEnum.CEVIK)
+            {
+                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList());
+                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList());
+            }
             duties.Add(CreateProcessedDutyObject(file));
         }
         return duties;
@@ -91,13 +100,18 @@ public class DutyService : IDutyService
             Date = new DateTime(int.Parse(dateInfo[2]), int.Parse(dateInfo[1]), int.Parse(dateInfo[0]), 0, 0, 0)
         };
     }
-    private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel)
+    private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel, int type = 1)
     {
         var records = await _personalRepository.GetPersonalById(personalExcel.Select(x => x.Sicil).ToList());
         // we only want to insert records that do not exist in the database
         var notExistedPersonal = personalExcel.Where(x => !records.Any(y => y.Sicil == x.Sicil)).ToList();
         if (notExistedPersonal.Count() != 0)
         {
+            // set type
+            foreach (var personal in notExistedPersonal)
+            {
+                personal.Type = type;
+            }
             await _personalRepository.InsertManyAsync(notExistedPersonal);
         }
     }

@@ -6,7 +6,6 @@ namespace DutyAssignment.Models;
 
 public class PersonalExcel : IPersonalExcel
 {
-    public required string SN { get; set; }
     public required string Sicil { get; set; }
     public required string TcKimlik { get; set; }
     public required string Ad { get; set; }
@@ -17,6 +16,7 @@ public class PersonalExcel : IPersonalExcel
     public required string Grup { get; set; }
     public required string Tel { get; set; }
     public required string Iban { get; set; }
+    public required int Type { get; set; }
     public required IEnumerable<string> Duties { get; set; }
     public required IEnumerable<string> PaidDuties { get; set; }
     [BsonId]

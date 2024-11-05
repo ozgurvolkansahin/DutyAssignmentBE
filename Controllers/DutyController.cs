@@ -25,15 +25,15 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     {
         return ApiResultOk(await Service.GetDutiesByIdListWithPagination(dutyIds.sicil, dutyIds.page, dutyIds.pageSize, dutyIds.isPaidDuties));
     }
-    [HttpGet("ProcessDutyExcelFiles")]
-    public OkObjectResult ProcessDutyExcelFiles()
-    {
-        return ApiResultOk(Service.ProcessDutyExcelFilesAsync());
-    }
+    // [HttpGet("ProcessDutyExcelFiles")]
+    // public OkObjectResult ProcessDutyExcelFiles()
+    // {
+    //     return ApiResultOk(Service.ProcessDutyExcelFilesAsync());
+    // }
     [HttpGet("InsertDuties")]
-    public async Task<OkObjectResult> InsertDuties()
+    public async Task<OkObjectResult> InsertDuties([FromQuery] int type)
     {
-        return ApiResultOk(await Service.InsertDuties());
+        return ApiResultOk(await Service.InsertDuties(type));
     }
     [HttpPost("GetOccurrencesOfSpecificValues")]
     public async Task<OkObjectResult> GetOccurrencesOfSpecificValues([FromBody] BsonArray specificValues)

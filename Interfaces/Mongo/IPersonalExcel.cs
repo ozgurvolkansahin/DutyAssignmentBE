@@ -1,8 +1,9 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace DutyAssignment.Interfaces
 {
     public interface IPersonalExcel : IEntity<string>
     {
-        string SN { get; set; }
         string Sicil { get; set; }
         string TcKimlik { get; set; }
         string Ad { get; set; }
@@ -13,6 +14,7 @@ namespace DutyAssignment.Interfaces
         string Grup { get; set; }
         string Tel { get; set; }
         string Iban { get; set; }
+        int Type { get; set; }
         IEnumerable<string> Duties { get; set; }
         IEnumerable<string> PaidDuties { get; set; }
         int DutiesCount { get; set; }

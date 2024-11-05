@@ -15,5 +15,6 @@ namespace DutyAssignment.Services
         Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId);
         Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
         Task<UpdateResult> ResetAssignment(string dutyId);
+        Task<string> ProcessPaidDuties();
     }
 }

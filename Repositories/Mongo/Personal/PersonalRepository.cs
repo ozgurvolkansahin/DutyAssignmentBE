@@ -14,14 +14,14 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         }
 
         // get all personal with pagination
-        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize)
+        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type)
         {
             // find, skip, and limit documents; then empty Duties and PaidDuties array and set their count to DutiesCount and PaidDutiesCount before emptying them
             var pipeline = new BsonDocument[]
             {
+                new BsonDocument("$match", new BsonDocument("Type", type)),
                 new BsonDocument("$project", new BsonDocument
                 {
-                    { "SN", 1 },
                     { "Sicil", 1 },
                     { "TcKimlik", 1 },
                     { "Ad", 1 },
@@ -44,7 +44,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>
             {
                 data = await _collection.Aggregate<IPersonalExcel>(pipeline).ToListAsync(),
-                total = Convert.ToInt32(await _collection.CountDocumentsAsync(new BsonDocument()))
+                total = Convert.ToInt32(await _collection.CountDocumentsAsync(new BsonDocument("Type", type)))
             };
 
             // var personnel = await _collection.Find(new BsonDocument()).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
@@ -52,8 +52,12 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             // return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel> { data = personnel, total = count };
         }
 
-        public async Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities)
+        public async Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities, int type = 1)
         {
+            foreach (var entity in entities)
+            {
+                entity.Type = type;
+            }
             await InsertManyAsync(entities);
         }
         public async Task<IEnumerable<IPersonalExcel>> GetPersonalById(IEnumerable<string> sicil)
@@ -101,9 +105,10 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 {
                     { "_id", "null" },
                     { "totalDutiesCount", new BsonDocument("$sum", "$dutiesCount") }
-                })            };
+                })};
             // return count property from result
-            return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
+            var res = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            return res != null && res.Contains("totalDutiesCount") ? res["totalDutiesCount"].AsInt32 : 0;
 
         }
         public async Task<int> GetTotalPaymentsDone()
@@ -117,7 +122,8 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                     { "totalDutiesCount", new BsonDocument("$sum", new BsonDocument("$size", "$PaidDuties")) }
                 })};
             // return count property from result
-            return (await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync())["totalDutiesCount"].AsInt32;
+            var res = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            return res != null && res.Contains("totalDutiesCount") ? res["totalDutiesCount"].AsInt32 : 0;
 
         }
 

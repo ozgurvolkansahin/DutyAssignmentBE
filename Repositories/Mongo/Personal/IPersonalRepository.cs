@@ -6,7 +6,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 {
     public interface IPersonalRepository : IMongoRepository<IPersonalExcel, string>
     {
-        Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities);
+        Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities, int type = 1);
         Task<IEnumerable<IPersonalExcel>> GetPersonalById(IEnumerable<string> sicil);
         Task PushDutyIdToDutyArray(string dutyId, List<string> sicil);
         Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil);
@@ -14,7 +14,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task<int> GetTotalPaymentsAsync();
         Task<int> GetTotalAssignedPersonal();
         Task<int> GetTotalPaymentsDone();
-        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize);
+        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type);
         Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
         Task<UpdateResult> ResetAssignment(string dutyId);
         Task<DeleteResult> DeleteManyPersonnel(List<string> sicil);
