@@ -70,3 +70,13 @@ c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publis
 c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\appsettings.json
 c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\DutyAssignment.deps.json
 c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\DutyAssignment.runtimeconfig.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\publish\web.config
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\web.config
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\appsettings.Development.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\appsettings.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\DutyAssignment.deps.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\DutyAssignment.runtimeconfig.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\publish\appsettings.Development.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\publish\appsettings.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\publish\DutyAssignment.deps.json
+c:\Users\MONSTER\Desktop\projects\DutyAssignment\bin\Debug\net8.0\publish\publish\publish\publish\DutyAssignment.runtimeconfig.json
