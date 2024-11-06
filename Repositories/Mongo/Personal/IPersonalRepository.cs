@@ -9,6 +9,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities, int type = 1);
         Task<IEnumerable<IPersonalExcel>> GetPersonalById(IEnumerable<string> sicil);
         Task PushDutyIdToDutyArray(string dutyId, List<string> sicil);
+        Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil);
         Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil);
         Task RemoveDutyIdFromPaidDutyArray(string dutyId);
         Task<int> GetTotalPaymentsAsync();

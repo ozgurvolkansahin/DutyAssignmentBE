@@ -71,6 +71,12 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var update = Builders<IPersonalExcel>.Update.AddToSet(x => x.Duties, dutyId);
             await UpdateManyAsync(filter, update);
         }
+        public async Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            var update = Builders<IPersonalExcel>.Update.Pull(x => x.Duties, dutyId);
+            await UpdateManyAsync(filter, update);
+        }
         public async Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil)
         {
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);

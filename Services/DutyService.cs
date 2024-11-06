@@ -155,6 +155,7 @@ public class DutyService : IDutyService
         {
             await _personalRepository.DeleteManyPersonnel(personalOnlyInThisDuty.Select(x => x.Sicil).ToList());
         }
+        await _personalRepository.PullDutyIdFromDutyArray(dutyId, assignment.ResponsibleManagers.Concat(assignment.PoliceAttendants).ToList());
         await _assignmentRepository.DeleteAssignment(dutyId);
         return await _dutyRepository.DeleteDuty(dutyId);
     }
