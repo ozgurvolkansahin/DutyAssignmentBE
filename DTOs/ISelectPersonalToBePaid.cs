@@ -30,6 +30,8 @@ namespace DutyAssignment.DTOs
         string grup { get; set; }
         string tel { get; set; }
         string iban { get; set; }
+        string order { get; set; }
+        string orderBy { get; set; }
         int page { get; set; }
         int pageSize { get; set; }
         int type { get; set; }

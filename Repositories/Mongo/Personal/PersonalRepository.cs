@@ -158,7 +158,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             
             if (filter.type != 0)
                 filters.Add(filterBuilder.Eq(x => x.Type, filter.type));
-                
+
             if (!string.IsNullOrEmpty(filter.isim))
             {
                 var normalizedAd = filter.isim.ToUpper(new System.Globalization.CultureInfo("tr-TR")); // Türkçe karakterler
@@ -168,15 +168,52 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
             }
             var finalFilter = filterBuilder.And(filters);
-            var filteredPersonnel = await _collection.Find(finalFilter).Skip((filter.page - 1) * filter.pageSize).Limit(filter.pageSize).ToListAsync();
-            // set dutiesCount and paidDutiesCount properties for each filtered personnel
-            foreach (var personnel in filteredPersonnel)
+            var renderedFilter = finalFilter.Render(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+
+            var aggregationStages = new List<BsonDocument>
+                {
+                    new BsonDocument { { "$match", renderedFilter } },
+                    new BsonDocument
+                    {
+                        { "$addFields", new BsonDocument
+                            {
+                                { "DutiesCount", new BsonDocument("$size", "$Duties") },
+                                { "PaidDutiesCount", new BsonDocument("$size", "$PaidDuties") }
+                            }
+                        }
+                    }
+                };
+            SortDefinition<IPersonalExcel> sort = null;
+            var orderBy = filter.orderBy == "dutiesCount" ? "DutiesCount" :  "PaidDutiesCount";
+            // DutiesCount and PaidDutiesCount are set by Duties and PaidDuties arrays count respectively
+            // so we need to create these properties before sorting
+
+            if (filter.order != "" && filter.orderBy != "")
             {
-                personnel.DutiesCount = personnel.Duties.Count();
-                personnel.PaidDutiesCount = personnel.PaidDuties.Count();
+                sort = filter.order == "asc" ? Builders<IPersonalExcel>.Sort.Ascending(filter.orderBy) : Builders<IPersonalExcel>.Sort.Descending(filter.orderBy);
+                var sortOrder = filter.order == "asc" ? 1 : -1;
+                aggregationStages.Add(
+                    new BsonDocument
+                    {
+                        { "$sort", new BsonDocument(orderBy, sortOrder) }
+                    }
+                );
             }
-            var total = Convert.ToInt32(await _collection.CountDocumentsAsync(finalFilter));
-            return new FilterPersonnelWithTotalCount { data = filteredPersonnel, total = total };
+            aggregationStages.Add(new BsonDocument { { "$skip", (filter.page - 1) * filter.pageSize } });
+            aggregationStages.Add(new BsonDocument { { "$limit", filter.pageSize } });
+            var result = await _collection.Aggregate<IPersonalExcel>(aggregationStages).ToListAsync();
+            // var res2 = await _collection.Find<IPersonalExcel>(finalFilter).ToListAsync();
+            // var filteredPersonnel = await _collection.Find(finalFilter).Skip((filter.page - 1) * filter.pageSize).Limit(filter.pageSize).ToListAsync();
+            // // set dutiesCount and paidDutiesCount properties for each filtered personnel
+            // foreach (var personnel in filteredPersonnel)
+            // {
+            //     personnel.DutiesCount = personnel.Duties.Count();
+            //     personnel.PaidDutiesCount = personnel.PaidDuties.Count();
+            // }
+            // var total = Convert.ToInt32(await _collection.CountDocumentsAsync(finalFilter));
+            var total = await _collection.CountDocumentsAsync(finalFilter);
+
+            return new FilterPersonnelWithTotalCount { data = result, total = (int)total };
         }
         public async Task<UpdateResult> ResetAssignment(string dutyId)
         {
