@@ -155,7 +155,10 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
             if (!string.IsNullOrEmpty(filter.iban))
                 filters.Add(filterBuilder.Regex(x => x.Iban, new BsonRegularExpression(filter.iban, "i")));
-
+            
+            if (filter.type != 0)
+                filters.Add(filterBuilder.Eq(x => x.Type, filter.type));
+                
             if (!string.IsNullOrEmpty(filter.isim))
             {
                 var normalizedAd = filter.isim.ToUpper(new System.Globalization.CultureInfo("tr-TR")); // Türkçe karakterler

@@ -299,4 +299,5 @@ obj/
 #dotenv
 .env
 /.env
+bin*
 # End of https://www.gitignore.io/api/dotnetcore,aspnetcore,visualstudiocode
