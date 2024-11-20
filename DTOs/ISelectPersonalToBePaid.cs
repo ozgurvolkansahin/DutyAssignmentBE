@@ -8,6 +8,7 @@ namespace DutyAssignment.DTOs
     {
         IEnumerable<string> dutyIds { get; set; }
         int assignmentCount { get; set; }
+        int type { get; set; }
     }
     public interface IGetAssignedPersonalByDutyIdWithPaginationPostObject
     {
@@ -20,7 +21,8 @@ namespace DutyAssignment.DTOs
         IEnumerable<T> data { get; set; }
         int total { get; set; }
     }
-    public interface IFilterPersonnel {
+    public interface IFilterPersonnel
+    {
         string sicil { get; set; }
         string tcKimlik { get; set; }
         string isim { get; set; }

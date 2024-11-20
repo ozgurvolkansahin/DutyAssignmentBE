@@ -8,6 +8,7 @@ namespace DutyAssignment.Models;
 public class Assignment : IAssignment
 {
     public required string DutyId { get; set; }
+    public int Type { get; set; }
     public required IEnumerable<string> ResponsibleManagers { get; set; }
     public required IEnumerable<string> PoliceAttendants { get; set; }
     public required IEnumerable<string> PaidPersonal { get; set; }
@@ -20,12 +21,15 @@ public class Assignment : IAssignment
     public required string Id { get; set; }
 }
 
-public class PreviousAssignments {
+public class PreviousAssignments
+{
     public IEnumerable<string> Personal { get; set; }
     public DateTime Date { get; set; }
 }
 
-public class PaidPersonnelInDuty {
+public class PaidPersonnelInDuty
+{
     public IEnumerable<string> Personnel { get; set; }
     public string DutyId { get; set; }
+    public int Type { get; set; }
 }

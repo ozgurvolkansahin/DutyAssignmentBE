@@ -7,6 +7,7 @@ namespace DutyAssignment.Interfaces
     public interface IAssignment : IEntity<string>
     {
         string DutyId { get; set; }
+        int Type { get; set; }
         IEnumerable<string> ResponsibleManagers { get; set; }
         IEnumerable<string> PoliceAttendants { get; set; }
         IEnumerable<string> PaidPersonal { get; set; }

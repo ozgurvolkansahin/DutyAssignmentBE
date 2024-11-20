@@ -22,8 +22,11 @@ public class PersonalExcel : IPersonalExcel
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public required string Id { get; set; }
+    [BsonIgnoreIfDefault]
     public int DutiesCount { get; set; }
+    [BsonIgnoreIfDefault]
     public int PaidDutiesCount { get; set; }
+    [BsonIgnore]
     public bool Priority { get; set; }
 }
 

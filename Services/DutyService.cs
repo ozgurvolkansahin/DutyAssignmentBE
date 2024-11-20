@@ -39,18 +39,29 @@ public class DutyService : IDutyService
         }
         return await _dutyRepository.GetDutiesByIdWithPagination(personnelList[0].Duties, page, pageSize);
     }
+    public async Task<IEnumerable<IDuty>> GetDutiesByIdListAndTypeWithPagination(string sicil, int page, int pageSize, bool isPaidDuties, int type)
+    {
+        var personnel = await _personalRepository.GetPersonalByIdAndType(new List<string> { sicil }, type);
+        var personnelList = personnel?.ToList();
+        if (personnelList == null || personnelList.Count == 0 || personnelList[0].Duties == null)
+        {
+            return Enumerable.Empty<IDuty>();
+        }
+        if (isPaidDuties)
+        {
+            return await _dutyRepository.GetDutiesByIdAndTypeWithPagination(personnelList[0].PaidDuties, page, pageSize, type);
+        }
+        return await _dutyRepository.GetDutiesByIdAndTypeWithPagination(personnelList[0].Duties, page, pageSize, type);
+    }
     public async Task<object> InsertDuties(int type)
     {
         var files = await ProcessDutyExcelFilesAsync(type);
-        var records = await _dutyRepository.GetDutiesById(files.Select(x => x.DutyId).ToList());
+        var records = await _dutyRepository.GetDutiesByIdAndType(files.Select(x => x.DutyId).ToList(), type);
         // we only want to insert records that do not exist in the database
         files = files.Where(x => !records.Any(y => y.DutyId == x.DutyId)).ToList();
         if (files.Count() != 0)
         {
             await _dutyRepository.InsertManyAsync(files);
-        }
-        if (type == (int)PersonnelTypeEnum.CEVIK) {
-
         }
         return new
         {
@@ -72,19 +83,19 @@ public class DutyService : IDutyService
             PersonalInDuty personalInDuty = _excelService.ReadDutyFile(file + ".xlsx", type);
             await InsertPersonal(personalInDuty.ResponsibleManagers, type);
             await InsertPersonal(personalInDuty.PoliceAttendants, type);
-            _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty);
-            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList());
-            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList());
+            _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty, type);
+            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
+            _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
             if (type == (int)PersonnelTypeEnum.CEVIK)
             {
-                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList());
-                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList());
+                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
+                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
             }
-            duties.Add(CreateProcessedDutyObject(file));
+            duties.Add(CreateProcessedDutyObject(file, type));
         }
         return duties;
     }
-    private IDuty CreateProcessedDutyObject(string file)
+    private IDuty CreateProcessedDutyObject(string file, int type)
     {
         // we expect the file name to be in the format "dutyId-description-date"
         // where description and date has a format with underscores
@@ -97,7 +108,8 @@ public class DutyService : IDutyService
             DutyId = fileInfo[0].Trim(),
             Description = fileInfo[1].Trim().Replace("_", "-"),
             // int year, int month, int day, int hour, int minute, int second
-            Date = new DateTime(int.Parse(dateInfo[2]), int.Parse(dateInfo[1]), int.Parse(dateInfo[0]), 0, 0, 0)
+            Date = new DateTime(int.Parse(dateInfo[2]), int.Parse(dateInfo[1]), int.Parse(dateInfo[0]), 0, 0, 0),
+            Type = type
         };
     }
     private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel, int type = 1)
@@ -115,15 +127,16 @@ public class DutyService : IDutyService
             await _personalRepository.InsertManyAsync(notExistedPersonal);
         }
     }
-    private async Task SaveAssignment(string dutyId, PersonalInDuty personalInDuty)
+    private async Task SaveAssignment(string dutyId, PersonalInDuty personalInDuty, int type)
     {
-        var record = await _assignmentRepository.GeAssignmentByDutyId(dutyId);
+        var record = await _assignmentRepository.GetAssignmentByDutyIdAndType(dutyId, type);
         // we only want to insert records that do not exist in the database
         if (record != null) return;
         DateTime dateTime = DateTime.Now;
         _ = _assignmentRepository.CreateAsync(new Assignment
         {
             DutyId = dutyId,
+            Type = type,
             ResponsibleManagers = personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(),
             PoliceAttendants = personalInDuty.PoliceAttendants.Where(x => !personalInDuty.ResponsibleManagers.Select(y => y.Sicil).Contains(x.Sicil)).Select(x => x.Sicil).ToList(),
             Id = ObjectId.GenerateNewId().ToString(),
@@ -131,7 +144,8 @@ public class DutyService : IDutyService
             LastUpdate = dateTime,
             AssignmentDate = dateTime,
             IsActive = false,
-            PaidPersonal = new List<string>(),
+            // if type = 3 then all personnel are paid
+            PaidPersonal = type == (int)PersonnelTypeEnum.CEVIK ? personalInDuty.ResponsibleManagers.Concat(personalInDuty.PoliceAttendants).Select(x => x.Sicil).ToList() : new List<string>(),
         });
     }
     public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)
@@ -139,7 +153,7 @@ public class DutyService : IDutyService
         var result = await _assignmentRepository.GetOccurrencesOfSpecificValues(specificValues);
         return result;
     }
-    public async Task<DeleteResult> DeleteDuty(string dutyId)
+    public async Task<DeleteResult> DeleteDuty(string dutyId, int type)
     {
         var assignment = await _assignmentRepository.GeAssignmentByDutyId(dutyId);
         if (assignment != null && (assignment.PaidPersonal.Count() > 0 || assignment.IsActive == true))
@@ -155,7 +169,7 @@ public class DutyService : IDutyService
         {
             await _personalRepository.DeleteManyPersonnel(personalOnlyInThisDuty.Select(x => x.Sicil).ToList());
         }
-        await _personalRepository.PullDutyIdFromDutyArray(dutyId, assignment.ResponsibleManagers.Concat(assignment.PoliceAttendants).ToList());
+        await _personalRepository.PullDutyIdFromDutyArray(dutyId, assignment.ResponsibleManagers.Concat(assignment.PoliceAttendants).ToList(), type);
         await _assignmentRepository.DeleteAssignment(dutyId);
         return await _dutyRepository.DeleteDuty(dutyId);
     }

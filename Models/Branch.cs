@@ -3,29 +3,35 @@ using DutyAssignment.Interfaces;
 
 namespace DutyAssignment.Models;
 
-public class BranchDashboardDTO : IBranchDashboardDTO
+public class BranchData : IBranchData
 {
     public int TotalDuties { get; set; }
     public int TotalAssignments { get; set; }
     public int TotalPayments { get; set; }
     public int TotalAssignedPersonal { get; set; }
-    public int WaitingAssignmentsCount { get; set; }
     public int TotalPaymentsDone { get; set; }
-    public IEnumerable<IAssignmentLookupDuty> AssignmentLookupDuty { get; set; }
     // constructor
-    public BranchDashboardDTO(int totalDuties,
+    public BranchData(int totalDuties,
     int totalAssignments,
-    int totalPayments, IEnumerable<IAssignmentLookupDuty> assignmentLookupDuty,
+    int totalPayments,
     int totalAssignedPersonal,
-    int waitingAssignmentsCount,
     int totalPaymentsDone)
     {
         TotalDuties = totalDuties;
         TotalAssignments = totalAssignments;
         TotalPayments = totalPayments;
-        AssignmentLookupDuty = assignmentLookupDuty;
         TotalAssignedPersonal = totalAssignedPersonal;
-        WaitingAssignmentsCount = waitingAssignmentsCount;
         TotalPaymentsDone = totalPaymentsDone;
+    }
+}
+
+public class BranchInfo : IBranchInfo
+{
+    public string BranchName { get; set; }
+    public IBranchData Data { get; set; }
+    public BranchInfo(string branchName, IBranchData data)
+    {
+        BranchName = branchName;
+        Data = data;
     }
 }

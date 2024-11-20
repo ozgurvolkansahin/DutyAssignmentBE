@@ -4,15 +4,11 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DutyAssignment.Interfaces
 {
-public interface IDuty: IEntity<string>
-{
-    [BsonElement("duty_id")]
-    string DutyId { get; set; }
-
-    [BsonElement("duty_description")]
-    string Description { get; set; }
-
-    [BsonElement("date")]
-    DateTime Date { get; set; }
-}
+    public interface IDuty : IEntity<string>
+    {
+        string DutyId { get; set; }
+        string Description { get; set; }
+        int Type { get; set; }
+        DateTime Date { get; set; }
+    }
 }

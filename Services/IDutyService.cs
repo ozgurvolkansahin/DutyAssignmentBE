@@ -9,9 +9,10 @@ namespace DutyAssignment.Services
     {
         Task<IEnumerable<IDuty>> GetDuties();
         Task<IEnumerable<IDuty>> GetDutiesByIdListWithPagination(string sicil, int page, int pageSize, bool isPaidDuties);
+        Task<IEnumerable<IDuty>> GetDutiesByIdListAndTypeWithPagination(string sicil, int page, int pageSize, bool isPaidDuties, int type);
         Task<IEnumerable<IDuty>> ProcessDutyExcelFilesAsync(int type);
         Task<object> InsertDuties(int type);
         Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues);
-        Task<DeleteResult> DeleteDuty(string dutyId);
+        Task<DeleteResult> DeleteDuty(string dutyId, int type);
     }
 }

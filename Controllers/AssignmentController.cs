@@ -16,9 +16,12 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     [HttpPost("SelectPersonalToBePaid")]
     public async Task<IActionResult> SelectPersonalToBePaid([FromBody] SelectPersonalToBePaid selectPersonalToBePaid)
     {
-        try {
-        return ApiResultOk(await Service.GetAssignments(selectPersonalToBePaid.dutyIds, selectPersonalToBePaid.assignmentCount, selectPersonalToBePaid.reAssign));
-        } catch (Exception ex) {
+        try
+        {
+            return ApiResultOk(await Service.GetAssignments(selectPersonalToBePaid.dutyIds, selectPersonalToBePaid.assignmentCount, selectPersonalToBePaid.reAssign, selectPersonalToBePaid.type));
+        }
+        catch (Exception ex)
+        {
             return ApiResultNotOk(ex.Message);
         }
     }
@@ -28,14 +31,14 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
         return ApiResultOk(await Service.GetPaidAssignments(pageNumber, pageSize));
     }
     [HttpPost("GetAssignedPersonalByDutyIdWithPagination")]
-    public async Task<OkObjectResult>  GetAssignedPersonalByDutyIdWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
+    public async Task<OkObjectResult> GetAssignedPersonalByDutyIdWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
     {
         return ApiResultOk(await Service.GetAssignedPersonalByDutyIdWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize));
     }
     [HttpGet("DownloadPersonalReportForSpecificDuty")]
-    public async Task<IActionResult> DownloadPersonalReportForSpecificDuty([FromQuery] string dutyId)
+    public async Task<IActionResult> DownloadPersonalReportForSpecificDuty([FromQuery] string dutyId, [FromQuery] int type)
     {
-        var fileBytes = await Service.DownloadPersonalReportForSpecificDuty(dutyId);
+        var fileBytes = await Service.DownloadPersonalReportForSpecificDuty(dutyId, type);
         var docName = $"{dutyId}_OdemeListesi.xlsx";
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
     }
@@ -45,7 +48,7 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     {
         return ApiResultOk(await Service.FilterAssignments(filterAssignments));
     }
-    
+
     [HttpGet("ResetAssignment")]
     public async Task<OkObjectResult> ResetAssignment([FromQuery] string dutyId)
     {

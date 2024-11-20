@@ -23,7 +23,7 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
     [HttpPost("GetDutiesByIdList")]
     public async Task<OkObjectResult> GetDutiesByIdList([FromBody] GetDutiesByIdList dutyIds)
     {
-        return ApiResultOk(await Service.GetDutiesByIdListWithPagination(dutyIds.sicil, dutyIds.page, dutyIds.pageSize, dutyIds.isPaidDuties));
+        return ApiResultOk(await Service.GetDutiesByIdListAndTypeWithPagination(dutyIds.sicil, dutyIds.page, dutyIds.pageSize, dutyIds.isPaidDuties, dutyIds.type));
     }
     // [HttpGet("ProcessDutyExcelFiles")]
     // public OkObjectResult ProcessDutyExcelFiles()
@@ -41,11 +41,11 @@ public class DutyController : BaseController<DutyController, IDutyService, IDuty
         return ApiResultOk(await Service.GetOccurrencesOfSpecificValues(specificValues));
     }
     [HttpGet("Delete")]
-    public async Task<IActionResult> DeleteDuty([FromQuery] string dutyId)
+    public async Task<IActionResult> DeleteDuty([FromQuery] string dutyId, [FromQuery] int type)
     {
         try
         {
-            return ApiResultOk(await Service.DeleteDuty(dutyId));
+            return ApiResultOk(await Service.DeleteDuty(dutyId, type));
         }
         catch (Exception ex)
         {

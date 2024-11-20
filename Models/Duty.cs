@@ -8,6 +8,8 @@ namespace DutyAssignment.Models
     {
         [BsonElement("duty_id")]
         public required string DutyId { get; set; }
+        [BsonElement("type")]
+        public int Type { get; set; }
         [BsonElement("duty_description")]
         public required string Description { get; set; }
         [BsonElement("date")]

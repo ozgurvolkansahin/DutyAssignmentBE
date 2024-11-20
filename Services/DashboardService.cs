@@ -1,4 +1,5 @@
 using DutyAssignment.DTOs;
+using DutyAssignment.Enum;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using DutyAssignment.Repositories.Mongo.Duty;
@@ -22,16 +23,41 @@ public class DashboardService : IDashboardService
         _dashboardRepository = dashboardRepository;
     }
 
-    public async Task<IDashboardDTO> GetDashboardData(int pageNumber, int pageSize)
+    // var assignmentsLookup = await _assignmentRepository.SortAssignmentsByDateAndGetByPage(pageNumber, pageSize);
+
+    public async Task<IDashboardDTO> GetDashboardData()
     {
-        var totalDuties = await _dutyRepository.GetCountAsync();
-        var totalAssignments = await _personalRepository.GetCountAsync();
-        var totalPayments = await _personalRepository.GetTotalPaymentsAsync();
-        var dashboardInfo = await _dashboardRepository.GetDashboardData();
-        var assignmentsLookup = await _assignmentRepository.SortAssignmentsByDateAndGetByPage(pageNumber, pageSize);
-        var waitingAssignmentsCount = await _assignmentRepository.GetWaitingAssignmentsCount();
-        var totalAssignedPersonal = await _personalRepository.GetTotalAssignedPersonal();
-        var totalPaymentsDone = await _personalRepository.GetTotalPaymentsDone();
-        return new DashboardDTO(dashboardInfo, totalDuties, totalAssignments, totalPayments, assignmentsLookup, totalAssignedPersonal, waitingAssignmentsCount, totalPaymentsDone);
+        var branchesInfo = new List<IBranchInfo>
+        {
+            new BranchInfo("Kadro", await GetBranchData((int)PersonnelTypeEnum.KADRO)),
+            new BranchInfo("Şube", await GetBranchData((int)PersonnelTypeEnum.SUBE)),
+            new BranchInfo("Çevik", await GetBranchData((int)PersonnelTypeEnum.CEVIK))
+        };
+
+        var dashboardData = await _dashboardRepository.GetDashboardData();
+        var dashboardInfo = new DashboardDTO(
+            dashboardData,
+            branchesInfo
+        );
+        return dashboardInfo;
+    }
+
+    private async Task<IBranchData> GetBranchData(int type)
+    {
+        var totalDuties = await _dutyRepository.GetDutiesCountByType(type);
+        var totalAssignments = await _personalRepository.GetCountByTypeAsync(type);
+        var totalPayments = await _personalRepository.GetTotalPaymentsByTypeAsync(type);
+        var totalAssignedPersonal = await _personalRepository.GetTotalAssignedPersonalByType(type);
+        var totalPaymentsDone = await _personalRepository.GetTotalPaymentsDoneByType(type);
+        // var waitingAssignmentsCount = await _assignmentRepository.GetWaitingAssignmentsCount();
+        return new BranchData(totalDuties, totalAssignments, totalPayments, totalAssignedPersonal, totalPaymentsDone);
+    }
+    public async Task<IBranchDashboardDTO> GetBranchDashboardData(int pageNumber, int pageSize, int type)
+    {
+        var branchData = await GetBranchData(type);
+        var assignmentsLookup = await _assignmentRepository.SortAssignmentsByDateTypeAndGetByPage(pageNumber, pageSize, type);
+        var waitingAssignmentsCount = await _assignmentRepository.GetWaitingAssignmentsByTypeCount(type);
+
+        return new BranchDashboardDTO(branchData.TotalDuties, branchData.TotalAssignments, branchData.TotalPayments, assignmentsLookup, branchData.TotalAssignedPersonal, waitingAssignmentsCount, branchData.TotalPaymentsDone);
     }
 }

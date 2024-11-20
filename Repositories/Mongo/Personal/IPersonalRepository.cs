@@ -8,13 +8,18 @@ namespace DutyAssignment.Repositories.Mongo.Duty
     {
         Task InsertPersonalDataAsync(IEnumerable<IPersonalExcel> entities, int type = 1);
         Task<IEnumerable<IPersonalExcel>> GetPersonalById(IEnumerable<string> sicil);
-        Task PushDutyIdToDutyArray(string dutyId, List<string> sicil);
-        Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil);
-        Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil);
-        Task RemoveDutyIdFromPaidDutyArray(string dutyId);
+        Task<IEnumerable<IPersonalExcel>> GetPersonalByIdAndType(IEnumerable<string> sicil, int type);
+        Task PushDutyIdToDutyArray(string dutyId, List<string> sicil, int type);
+        Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil, int type);
+        Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil, int type);
+        Task RemoveDutyIdFromPaidDutyArray(string dutyId, int type);
+        Task<int> GetCountByTypeAsync(int type);
         Task<int> GetTotalPaymentsAsync();
+        Task<int> GetTotalPaymentsByTypeAsync(int type);
         Task<int> GetTotalAssignedPersonal();
+        Task<int> GetTotalAssignedPersonalByType(int type);
         Task<int> GetTotalPaymentsDone();
+        Task<int> GetTotalPaymentsDoneByType(int type);
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type);
         Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
         Task<UpdateResult> ResetAssignment(string dutyId);

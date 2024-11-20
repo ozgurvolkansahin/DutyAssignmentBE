@@ -14,8 +14,14 @@ public class DashboardController : BaseController<DashboardController, IDashboar
     }
 
     [HttpGet("")]
-    public async Task<OkObjectResult> GetDashboardData([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<OkObjectResult> GetDashboardData()
     {
-        return ApiResultOk(await Service.GetDashboardData(pageNumber, pageSize));
+        return ApiResultOk(await Service.GetDashboardData());
+    }
+
+    [HttpGet("branch")]
+    public async Task<OkObjectResult> GetBranchDashboardData([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int type)
+    {
+        return ApiResultOk(await Service.GetBranchDashboardData(pageNumber, pageSize, type));
     }
 }

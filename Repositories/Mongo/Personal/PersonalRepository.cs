@@ -65,28 +65,38 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
             return await _collection.Find(filter).ToListAsync();
         }
-        public async Task PushDutyIdToDutyArray(string dutyId, List<string> sicil)
+        public async Task<IEnumerable<IPersonalExcel>> GetPersonalByIdAndType(IEnumerable<string> sicil, int type)
         {
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
+            return await _collection.Find(filter).ToListAsync();
+        }
+        public async Task PushDutyIdToDutyArray(string dutyId, List<string> sicil, int type)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
             var update = Builders<IPersonalExcel>.Update.AddToSet(x => x.Duties, dutyId);
             await UpdateManyAsync(filter, update);
         }
-        public async Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil)
+        public async Task PullDutyIdFromDutyArray(string dutyId, List<string> sicil, int type)
         {
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
             var update = Builders<IPersonalExcel>.Update.Pull(x => x.Duties, dutyId);
             await UpdateManyAsync(filter, update);
         }
-        public async Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil)
+        public async Task PushDutyIdToPaidDutyArray(string dutyId, List<string> sicil, int type)
         {
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
             var update = Builders<IPersonalExcel>.Update.AddToSet(x => x.PaidDuties, dutyId);
             await UpdateManyAsync(filter, update);
         }
-        public async Task RemoveDutyIdFromPaidDutyArray(string dutyId)
+        public async Task RemoveDutyIdFromPaidDutyArray(string dutyId, int type)
         {
             // find all documents that have the dutyId in their PaidDuties array
             var filter = Builders<IPersonalExcel>.Filter.AnyEq(x => x.PaidDuties, dutyId);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
             // remove the dutyId from the PaidDuties array
             var update = Builders<IPersonalExcel>.Update.Pull(x => x.PaidDuties, dutyId);
             await UpdateManyAsync(filter, update);
@@ -161,7 +171,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
             if (!string.IsNullOrEmpty(filter.iban))
                 filters.Add(filterBuilder.Regex(x => x.Iban, new BsonRegularExpression(filter.iban, "i")));
-            
+
             if (filter.type != 0)
                 filters.Add(filterBuilder.Eq(x => x.Type, filter.type));
 
@@ -190,7 +200,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                     }
                 };
             SortDefinition<IPersonalExcel> sort = null;
-            var orderBy = filter.orderBy == "dutiesCount" ? "DutiesCount" :  "PaidDutiesCount";
+            var orderBy = filter.orderBy == "dutiesCount" ? "DutiesCount" : "PaidDutiesCount";
             // DutiesCount and PaidDutiesCount are set by Duties and PaidDuties arrays count respectively
             // so we need to create these properties before sorting
 
@@ -237,6 +247,47 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         {
             var filter = Builders<IPersonalExcel>.Filter.In(x => x.Sicil, sicil);
             return await _collection.DeleteManyAsync(filter);
+        }
+        public async Task<int> GetCountByTypeAsync(int type)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
+            return Convert.ToInt32(await _collection.CountDocumentsAsync(filter));
+        }
+        public async Task<int> GetTotalPaymentsByTypeAsync(int type)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.SizeGt(x => x.PaidDuties, 0);
+            filter = filter & Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
+            return Convert.ToInt32(await _collection.CountDocumentsAsync(filter));
+        }
+        public async Task<int> GetTotalAssignedPersonalByType(int type)
+        {
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument("Type", type)),
+                new BsonDocument("$project", new BsonDocument
+                {
+                    { "dutiesCount", new BsonDocument("$size", "$Duties") }
+                }),
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "null" },
+                    { "totalDutiesCount", new BsonDocument("$sum", "$dutiesCount") }
+                })};
+            var res = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            return res != null && res.Contains("totalDutiesCount") ? res["totalDutiesCount"].AsInt32 : 0;
+        }
+        public async Task<int> GetTotalPaymentsDoneByType(int type)
+        {
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument("Type", type)),
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "null" },
+                    { "totalDutiesCount", new BsonDocument("$sum", new BsonDocument("$size", "$PaidDuties")) }
+                })};
+            var res = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            return res != null && res.Contains("totalDutiesCount") ? res["totalDutiesCount"].AsInt32 : 0;
         }
     }
 

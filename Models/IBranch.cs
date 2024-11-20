@@ -4,19 +4,17 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DutyAssignment.DTOs
 {
-    public interface IDashboardDTO
-    {
-        public IDashboard SystemResponsible { get; set; }
-        public IEnumerable<IBranchInfo> BranchesInfo { get; set; }
-    }
-    public interface IBranchDashboardDTO
+    public interface IBranchData
     {
         int TotalDuties { get; set; }
         int TotalAssignments { get; set; }
         int TotalPayments { get; set; }
-        int WaitingAssignmentsCount { get; set; }
         int TotalPaymentsDone { get; set; }
-        IEnumerable<IAssignmentLookupDuty> AssignmentLookupDuty { get; set; }
         int TotalAssignedPersonal { get; set; }
+    }
+    public interface IBranchInfo
+    {
+        public string BranchName { get; set; }
+        public IBranchData Data { get; set; }
     }
 }
