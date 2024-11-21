@@ -19,12 +19,18 @@ public class ExcelService : IExcelService
     public ExcelService()
     {
     }
-    private string GetExcelPath(int type = 1) {
-        if (type == (int)PersonnelTypeEnum.KADRO) {
+    private string GetExcelPath(int type = 1)
+    {
+        if (type == (int)PersonnelTypeEnum.KADRO)
+        {
             return KadroExcelPath;
-        } else if (type == (int)PersonnelTypeEnum.SUBE) {
+        }
+        else if (type == (int)PersonnelTypeEnum.SUBE)
+        {
             return SubeExcelPath;
-        } else if (type == (int)PersonnelTypeEnum.CEVIK) {
+        }
+        else if (type == (int)PersonnelTypeEnum.CEVIK)
+        {
             return CevikExcelPath;
         }
         return KadroExcelPath;
@@ -62,14 +68,16 @@ public class ExcelService : IExcelService
     }
 
     // Read the excel file and return the list of PersonalExcel objects
-    public List<PaidPersonnelInDuty> ProcessPaymentFileExcelAndReturnPersonnel() {
+    public List<PaidPersonnelInDuty> ProcessPaymentFileExcelAndReturnPersonnel()
+    {
         List<string> files = FindPaymentFiles();
         List<PaidPersonnelInDuty> personnel = new List<PaidPersonnelInDuty>();
         foreach (var file in files)
         {
             string FilePath = Path.Combine(PaymentExcelPath, file);
             FileInfo existingFile = new FileInfo(FilePath);
-            using (ExcelPackage package = new ExcelPackage(existingFile)) {
+            using (ExcelPackage package = new ExcelPackage(existingFile))
+            {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                 // find rows which A column trimmed value is "EK GÖSTERGESİ 3600(dahil)-6400(hariç) OLAN KADROLARDA BULUNANLAR"
                 // and which which A column trimmed value is "AYLIK/KADRO DERECESİ 1-4 OLANLAR"
@@ -97,9 +105,11 @@ public class ExcelService : IExcelService
                     .Where(x => !string.IsNullOrEmpty(x))
                     .ToList();
 
-                personnel.Add(new PaidPersonnelInDuty{
+                personnel.Add(new PaidPersonnelInDuty
+                {
                     Personnel = personnelList,
-                    DutyId = file.Split("-")[0].Trim()});
+                    DutyId = file.Split("-")[0].Trim()
+                });
             }
         }
         return personnel;
@@ -220,5 +230,57 @@ public class ExcelService : IExcelService
             return package.GetAsByteArray();
         }
     }
+    public byte[] DownloadExcelWoTemplate(IEnumerable<IPersonalExcel> personalList)
+    {
+        using (var package = new ExcelPackage())
+        {
+            // create a new workbook
 
+            // create a new file and worksheet
+            var worksheet = package.Workbook.Worksheets.Add("Personnel");
+
+            // Başlık hücrelerini doğru satır ve sütun numaralarına yazın
+            worksheet.Cells[1, 1].Value = "SİCİL";
+            worksheet.Cells[1, 2].Value = "TCKİMLİK";
+            worksheet.Cells[1, 3].Value = "ADI";
+            worksheet.Cells[1, 4].Value = "SOYADI";
+            worksheet.Cells[1, 5].Value = "RUTBE";
+            worksheet.Cells[1, 6].Value = "BİRİMİ";
+            worksheet.Cells[1, 7].Value = "NOKTASI";
+            worksheet.Cells[1, 8].Value = "GRUBU";
+            worksheet.Cells[1, 9].Value = "CEP";
+            worksheet.Cells[1, 10].Value = "İBAN";
+            worksheet.Cells[1, 11].Value = "GÖREV SAYISI";
+            worksheet.Cells[1, 12].Value = "ÖDEME SAYISI";
+
+            int startRow = 2; // 2. sıradan itibaren doldur
+            var personalArray = personalList.ToArray();
+
+            for (int i = 0; i < personalArray.Length; i++)
+            {
+                long tcKimlikValue;
+                worksheet.Cells[startRow + i, 2].Value = Int64.TryParse(personalArray[i].TcKimlik, out tcKimlikValue) ? tcKimlikValue : 0;
+                worksheet.Cells[startRow + i, 2].Style.Numberformat.Format = "0";
+                worksheet.Cells[startRow + i, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                long sicilValue;
+                worksheet.Cells[startRow + i, 1].Value = Int64.TryParse(personalArray[i].Sicil, out sicilValue) ? sicilValue : 0;
+                worksheet.Cells[startRow + i, 1].Style.Numberformat.Format = "0";
+                worksheet.Cells[startRow + i, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                worksheet.Cells[startRow + i, 3].Value = personalArray[i].Ad;
+                worksheet.Cells[startRow + i, 4].Value = personalArray[i].Soyad;
+                worksheet.Cells[startRow + i, 5].Value = personalArray[i].Rutbe;
+                worksheet.Cells[startRow + i, 6].Value = personalArray[i].Birim;
+                worksheet.Cells[startRow + i, 7].Value = personalArray[i].Nokta;
+                worksheet.Cells[startRow + i, 8].Value = personalArray[i].Grup;
+                worksheet.Cells[startRow + i, 9].Value = personalArray[i].Tel;
+                worksheet.Cells[startRow + i, 10].Value = personalArray[i].Iban;
+                worksheet.Cells[startRow + i, 11].Value = personalArray[i].Duties.Count();
+                worksheet.Cells[startRow + i, 12].Value = personalArray[i].PaidDuties.Count();
+            }
+
+            return package.GetAsByteArray();
+        }
+    }
 }

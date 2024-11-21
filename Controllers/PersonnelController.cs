@@ -15,9 +15,9 @@ public class PersonnelController : BaseController<PersonnelController, IPersonal
     }
 
     [HttpGet("")]
-    public async Task<OkObjectResult> GetDashboardData([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int type)
+    public async Task<OkObjectResult> GetDashboardData([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int type, [FromQuery] string order, [FromQuery] string orderBy)
     {
-        return ApiResultOk(await Service.GetPersonalWithPagination(pageNumber, pageSize, type));
+        return ApiResultOk(await Service.GetPersonalWithPagination(pageNumber, pageSize, type, order, orderBy));
     }
     [HttpPost("Filter")]
     public async Task<OkObjectResult> FilterPersonnel([FromBody] FilterPersonnel filterPersonnel)

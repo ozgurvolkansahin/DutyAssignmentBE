@@ -1,4 +1,5 @@
 using DutyAssignment.DTOs;
+using DutyAssignment.Enum;
 using DutyAssignment.Interfaces;
 using DutyAssignment.Models;
 using DutyAssignment.Repositories.Mongo.Duty;
@@ -46,6 +47,10 @@ public class AssignmentService : IAssignmentService
     {
         return await _assignmentRepository.GetAssignedPersonalByDutyIdWithPagination(dutyId, page, pageSize);
     }
+    public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdAndTypeWithPagination(string dutyId, int page, int pageSize, int type)
+    {
+        return await _assignmentRepository.GetAssignedPersonalByDutyIdAndTypeWithPagination(dutyId, page, pageSize, type);
+    }
     public async Task<IEnumerable<PersonalExcel>> SelectPersonalToBePaid(string duty, int numToSelect, bool reAssign, int type)
     {
 
@@ -65,15 +70,70 @@ public class AssignmentService : IAssignmentService
             await _personalRepository.RemoveDutyIdFromPaidDutyArray(duty, type);
         }
         // merge ResponsibleManagers and PoliceAttendants arrays as BsonArray
-        var personals = await _personalRepository.GetPersonalById(assignment.PoliceAttendants);
+        var personals = await _personalRepository.GetPersonalByIdAndType(assignment.PoliceAttendants, type);
         // remove personals whos Birim is İlDışı Tayin
         personals = personals.Where(x => x.Birim != "İlDışı Tayin").ToList();
-        // List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
-        List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
-
         // ResponsibleManagers are 100% selected
         // add them to selectedPeople
-        var responsibleManagers = await _personalRepository.GetPersonalById(assignment.ResponsibleManagers);
+        var responsibleManagers = await _personalRepository.GetPersonalByIdAndType(assignment.ResponsibleManagers, type);
+        List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
+        if (type == (int)PersonnelTypeEnum.KADRO)
+        {
+            selectedPeople = SelectKadroPersonnelToBePaid(assignment, personals, responsibleManagers, numToSelect, type);
+        }
+        else if (type == (int)PersonnelTypeEnum.SUBE)
+        {
+            selectedPeople = SelectSubePersonnelToBePaid(assignment, personals, responsibleManagers, numToSelect, type);
+        }
+        // push dutyId to PaidDuties array and update the database
+        await _personalRepository.PushDutyIdToPaidDutyArray(duty, selectedPeople.Select(x => x.Sicil).ToList(), type);
+        await _assignmentRepository.SetAssignmentPaid(duty, selectedPeople.Select(x => x.Sicil).ToList(), type);
+        return selectedPeople.AsEnumerable();
+    }
+    public async Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId, int type)
+    {
+        var assignment = await _assignmentRepository.GetAssignmentByDutyIdAndType(dutyId, type);
+        var personnel = await _personalRepository.GetPersonalByIdAndType(assignment.PaidPersonal.ToList(), type);
+        return _excelService.DownloadExcel(personnel);
+    }
+    public async Task<byte[]> DownloadAllPersonnelWithType(int type)
+    {
+        var personnel = await _personalRepository.GetAllPersonnelWithType(type);
+        return _excelService.DownloadExcelWoTemplate(personnel);
+    }
+
+    public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
+    {
+        return await _assignmentRepository.FilterAssignments(filterAssignments);
+    }
+    public async Task<UpdateResult> ResetAssignment(string dutyId, int type)
+    {
+        await _personalRepository.ResetAssignment(dutyId, type);
+        return await _assignmentRepository.ResetAssignment(dutyId, type);
+    }
+    public async Task<string> ProcessPaidDuties()
+    {
+        var personnel = _excelService.ProcessPaymentFileExcelAndReturnPersonnel();
+        foreach (var person in personnel)
+        {
+            // get dutyId in person
+
+            var assignment = await _assignmentRepository.GeAssignmentByDutyId(person.DutyId);
+            if (assignment.PaidPersonal.Count() == 0)
+            {
+                await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList(), 1);
+                await _personalRepository.PushDutyIdToDutyArray(person.DutyId, person.Personnel.ToList(), 1);
+                await _personalRepository.PushDutyIdToPaidDutyArray(person.DutyId, person.Personnel.ToList(), 1);
+            }
+        }
+        return personnel.Count().ToString();
+    }
+
+    private List<PersonalExcel> SelectKadroPersonnelToBePaid(IAssignment assignment, IEnumerable<IPersonalExcel> personals, IEnumerable<IPersonalExcel> responsibleManagers, int numToSelect, int type)
+    {
+        List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
+        // ResponsibleManagers are 100% selected
+        // add them to selectedPeople
         selectedPeople = selectedPeople.Concat(responsibleManagers.Cast<PersonalExcel>().ToList()).ToList();
         // remove ResponsibleManagers from personals
         personals = personals.Where(x => !assignment.ResponsibleManagers.Contains(x.Sicil)).ToList();
@@ -83,7 +143,8 @@ public class AssignmentService : IAssignmentService
         // add +1 because this may be their 3rd duty
         foreach (var x in personals)
         {
-            x.Priority = (((x.Duties.Count() + 1) / 3) - x.PaidDuties.Count()) >= 1 ? true : false;
+            // x.Priority = (((x.Duties.Count() + 1) / 3) - x.PaidDuties.Count()) >= 1 ? true : false;
+            x.Priority = x.Duties.Count() >= (x.PaidDuties.Count() + 1) * 3 ? true : false;
         }
         var prioritizedPersonnel = personals.Where(x => x.Priority == true).ToList();
         // if there are people with priority, select them first
@@ -91,7 +152,7 @@ public class AssignmentService : IAssignmentService
         {
             if (prioritizedPersonnel.Count() > numToSelect - responsibleManagers.Count())
             {
-                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.OrderBy(x => x.PaidDuties.Count()).Take(numToSelect - responsibleManagers.Count()).Cast<PersonalExcel>().ToList()).ToList();
+                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.OrderBy(x => x.Duties.Count()).Take(numToSelect - responsibleManagers.Count()).Cast<PersonalExcel>().ToList()).ToList();
                 personals = personals.Where(x => !prioritizedPersonnel.Contains(x)).ToList();
             }
             else
@@ -110,7 +171,7 @@ public class AssignmentService : IAssignmentService
         {
             // if all people have the same number of paid duties, select numToSelect people randomly
             selectedPeople = selectedPeople.Concat(personals.OrderBy(x => random.Next())
-                .Take(numToSelect - responsibleManagers.Count())
+                .Take(numToSelect - selectedPeople.Count())
                 .Cast<PersonalExcel>()
                 .ToList()).ToList();
         }
@@ -132,42 +193,37 @@ public class AssignmentService : IAssignmentService
                 }
             }
         }
-        // push dutyId to PaidDuties array and update the database
-        await _personalRepository.PushDutyIdToPaidDutyArray(duty, selectedPeople.Select(x => x.Sicil).ToList(), type);
-        await _assignmentRepository.SetAssignmentPaid(duty, selectedPeople.Select(x => x.Sicil).ToList(), type);
-        return selectedPeople.AsEnumerable();
+        return selectedPeople;
     }
-    public async Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId, int type)
+    private List<PersonalExcel> SelectSubePersonnelToBePaid(IAssignment assignment, IEnumerable<IPersonalExcel> personals, IEnumerable<IPersonalExcel> responsibleManagers, int numToSelect, int type)
     {
-        var assignment = await _assignmentRepository.GetAssignmentByDutyIdAndType(dutyId, type);
-        var personnel = await _personalRepository.GetPersonalByIdAndType(assignment.PaidPersonal.ToList(), type);
-        return _excelService.DownloadExcel(personnel);
-    }
+        List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
+        // ResponsibleManagers are 100% selected
+        // add them to selectedPeople
+        selectedPeople = selectedPeople.Concat(responsibleManagers.Cast<PersonalExcel>().ToList()).ToList();
+        // remove ResponsibleManagers from personals
+        personals = personals.Where(x => !assignment.ResponsibleManagers.Contains(x.Sicil)).ToList();
 
-    public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
-    {
-        return await _assignmentRepository.FilterAssignments(filterAssignments);
-    }
-    public async Task<UpdateResult> ResetAssignment(string dutyId)
-    {
-        await _personalRepository.ResetAssignment(dutyId);
-        return await _assignmentRepository.ResetAssignment(dutyId);
-    }
-    public async Task<string> ProcessPaidDuties()
-    {
-        var personnel = _excelService.ProcessPaymentFileExcelAndReturnPersonnel();
-        foreach (var person in personnel)
+        // add a property to each personal in personals which will be assigned by the formula below
+        // ((number of duties assigned to a person) / 3) - (number of paid duties assigned to a person)
+        // add +1 because this may be their 3rd duty
+        foreach (var x in personals)
         {
-            // get dutyId in person
-
-            var assignment = await _assignmentRepository.GeAssignmentByDutyId(person.DutyId);
-            if (assignment.PaidPersonal.Count() == 0)
+            x.Priority = x.Duties.Count() >= (x.PaidDuties.Count() + 1) * 2 ? true : false;
+        }
+        var prioritizedPersonnel = personals.Where(x => x.Priority == true).ToList();
+        // if there are people with priority, select them first
+        if (prioritizedPersonnel.Count() > 0)
+        {
+            if (prioritizedPersonnel.Count() > numToSelect - responsibleManagers.Count())
             {
-                await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList(), 1);
-                await _personalRepository.PushDutyIdToDutyArray(person.DutyId, person.Personnel.ToList(), 1);
-                await _personalRepository.PushDutyIdToPaidDutyArray(person.DutyId, person.Personnel.ToList(), 1);
+                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.OrderBy(x => x.Duties.Count()).Take(numToSelect - responsibleManagers.Count()).Cast<PersonalExcel>().ToList()).ToList();
+            }
+            else
+            {
+                selectedPeople = selectedPeople.Concat(prioritizedPersonnel.Cast<PersonalExcel>().ToList()).ToList();
             }
         }
-        return personnel.Count().ToString();
+        return selectedPeople;
     }
 }

@@ -20,9 +20,10 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         Task<int> GetTotalAssignedPersonalByType(int type);
         Task<int> GetTotalPaymentsDone();
         Task<int> GetTotalPaymentsDoneByType(int type);
-        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type);
+        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type, string order, string orderBy);
         Task<FilterPersonnelWithTotalCount> FilterPersonnel(FilterPersonnel filterPersonnel);
-        Task<UpdateResult> ResetAssignment(string dutyId);
+        Task<IEnumerable<IPersonalExcel>> GetAllPersonnelWithType(int type);
+        Task<UpdateResult> ResetAssignment(string dutyId, int type);
         Task<DeleteResult> DeleteManyPersonnel(List<string> sicil);
     }
 }

@@ -344,6 +344,69 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             }; ;
         }
 
+        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdAndTypeWithPagination(string dutyId, int page, int pageSize, int type)
+        {
+            var filter = Builders<IAssignment>.Filter.And(
+                Builders<IAssignment>.Filter.Eq(x => x.DutyId, dutyId),
+                Builders<IAssignment>.Filter.Eq(x => x.Type, type)
+            );
+            var assignment = await _collection.Find(filter).FirstOrDefaultAsync();
+            if (assignment == null)
+            {
+                return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>
+                {
+                    total = 0,
+                    data = new List<PersonalExcel>() // Initialize the required 'data' member
+                };
+            }
+            // create a pipeline to lookup PaidPersonal string array with personal collection with pagination
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument
+                {
+                    { "DutyId", dutyId },
+                    { "Type", type }
+                }),
+                new BsonDocument("$lookup", new BsonDocument
+                {
+                    { "from", "personal" },
+                    { "localField", "PaidPersonal" },
+                    { "foreignField", "Sicil" },
+                    { "as", "Personal" }
+                }),
+                // to get total count of PersonalArray
+                new BsonDocument("$addFields", new BsonDocument
+                {
+                    { "TotalCount", new BsonDocument("$size", "$Personal") }
+                }),
+                new BsonDocument("$unwind", "$Personal"),
+                // assign total count to a variable
+                new BsonDocument("$skip", (page - 1) * pageSize),
+                new BsonDocument("$limit", pageSize),
+                    new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", BsonNull.Value }, // Id alanı burada gruplama için gerekli ancak null yapılıyor
+                    { "PersonalArray", new BsonDocument("$push", "$Personal") },
+                    // get totalcount as in
+                    { "TotalCount", new BsonDocument("$first", "$TotalCount") }
+                    // get total count of PersonalArray
+                })
+                // new BsonDocument("$project", new BsonDocument
+                // {
+                //     { "Personal", 1 },
+                // })
+            };
+            // get PersonalArray from result
+            var resultDocument = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+            var result = resultDocument?["PersonalArray"].AsBsonArray.Select(p => BsonSerializer.Deserialize<PersonalExcel>(p.AsBsonDocument)).ToList();
+            // get TotalCount from result
+            var totalCount = resultDocument?["TotalCount"].AsInt32;
+            return new GetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>
+            {
+                total = totalCount ?? 0,
+                data = result ?? new List<PersonalExcel>()
+            }; ;
+        }
         public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
         {
             var normalizedDes = filterAssignments.dutyDescription.ToUpper(new System.Globalization.CultureInfo("tr-TR"));
@@ -459,10 +522,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                 total = totalCount
             };
         }
-        public async Task<UpdateResult> ResetAssignment(string dutyId)
+        public async Task<UpdateResult> ResetAssignment(string dutyId, int type)
         {
             var filter = Builders<IAssignment>.Filter.And(
                 Builders<IAssignment>.Filter.Eq(a => a.DutyId, dutyId),
+                Builders<IAssignment>.Filter.Eq(a => a.Type, type),
                 Builders<IAssignment>.Filter.Exists(a => a.PaidPersonal, true),
                 Builders<IAssignment>.Filter.Type(a => a.PaidPersonal, BsonType.Array)
             );

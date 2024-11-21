@@ -12,9 +12,11 @@ namespace DutyAssignment.Services
         Task<IEnumerable<IDutyAssignments>> GetAssignments(IEnumerable<string> dutyIds, int numToSelect, bool reAssign, int type);
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<object>> GetPaidAssignments(int pageNumber, int pageSize);
         Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdWithPagination(string dutyId, int page, int pageSize);
+        Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdAndTypeWithPagination(string dutyId, int page, int pageSize, int type);
         Task<byte[]> DownloadPersonalReportForSpecificDuty(string dutyId, int type);
+        Task<byte[]> DownloadAllPersonnelWithType(int type);
         Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
-        Task<UpdateResult> ResetAssignment(string dutyId);
+        Task<UpdateResult> ResetAssignment(string dutyId, int type);
         Task<string> ProcessPaidDuties();
     }
 }

@@ -30,16 +30,23 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     {
         return ApiResultOk(await Service.GetPaidAssignments(pageNumber, pageSize));
     }
-    [HttpPost("GetAssignedPersonalByDutyIdWithPagination")]
-    public async Task<OkObjectResult> GetAssignedPersonalByDutyIdWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
+    [HttpPost("GetAssignedPersonalByDutyIdAndTypeWithPagination")]
+    public async Task<OkObjectResult> GetAssignedPersonalByDutyIdAndTypeWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
     {
-        return ApiResultOk(await Service.GetAssignedPersonalByDutyIdWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize));
+        return ApiResultOk(await Service.GetAssignedPersonalByDutyIdAndTypeWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize, getAssignedPersonalByDutyIdWithPaginationPostObject.type));
     }
     [HttpGet("DownloadPersonalReportForSpecificDuty")]
     public async Task<IActionResult> DownloadPersonalReportForSpecificDuty([FromQuery] string dutyId, [FromQuery] int type)
     {
         var fileBytes = await Service.DownloadPersonalReportForSpecificDuty(dutyId, type);
         var docName = $"{dutyId}_OdemeListesi.xlsx";
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
+    }
+    [HttpGet("DownloadAllPersonnelWithType")]
+    public async Task<IActionResult> DownloadAllPersonnelWithType([FromQuery] int type)
+    {
+        var fileBytes = await Service.DownloadAllPersonnelWithType(type);
+        var docName = "PersonelListesi.xlsx";
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", docName);
     }
 
@@ -50,9 +57,9 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     }
 
     [HttpGet("ResetAssignment")]
-    public async Task<OkObjectResult> ResetAssignment([FromQuery] string dutyId)
+    public async Task<OkObjectResult> ResetAssignment([FromQuery] string dutyId, [FromQuery] int type)
     {
-        return ApiResultOk(await Service.ResetAssignment(dutyId));
+        return ApiResultOk(await Service.ResetAssignment(dutyId, type));
     }
     [HttpGet("ProcessPaidDuties")]
     public async Task<OkObjectResult> ProcessPaidDuties()

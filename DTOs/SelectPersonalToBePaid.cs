@@ -16,6 +16,7 @@ namespace DutyAssignment.DTOs
         public required string dutyId { get; set; }
         public int page { get; set; }
         public int pageSize { get; set; }
+        public int type { get; set; }
     }
     public class GetAssignedPersonalByDutyIdWithPaginationResult<T> : IGetAssignedPersonalByDutyIdWithPaginationResult<T>
     {

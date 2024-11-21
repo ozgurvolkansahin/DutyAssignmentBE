@@ -8,6 +8,7 @@ namespace DutyAssignment.Services
         List<string> FindFiles(int type);
         PersonalInDuty ReadDutyFile(string filePath, int type);
         byte[] DownloadExcel(IEnumerable<IPersonalExcel> personalList);
+        byte[] DownloadExcelWoTemplate(IEnumerable<IPersonalExcel> personalList);
         List<PaidPersonnelInDuty> ProcessPaymentFileExcelAndReturnPersonnel();
     }
 }

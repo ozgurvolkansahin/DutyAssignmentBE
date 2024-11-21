@@ -14,8 +14,9 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         }
 
         // get all personal with pagination
-        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type)
+        public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetPersonalWithPagination(int page, int pageSize, int type, string order, string orderBy)
         {
+            var orderDir = order == "desc" ? -1 : 1;
             // find, skip, and limit documents; then empty Duties and PaidDuties array and set their count to DutiesCount and PaidDutiesCount before emptying them
             var pipeline = new BsonDocument[]
             {
@@ -37,6 +38,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
                     { "DutiesCount", new BsonDocument("$size", "$Duties") },
                     { "PaidDutiesCount", new BsonDocument("$size", "$PaidDuties") }
                 }),
+                new BsonDocument("$sort", new BsonDocument(orderBy == "dutiesCount" ? "DutiesCount" : "PaidDutiesCount", orderDir)),
                 new BsonDocument("$skip", (page - 1) * pageSize),
                 new BsonDocument("$limit", pageSize)
             };
@@ -231,10 +233,11 @@ namespace DutyAssignment.Repositories.Mongo.Duty
 
             return new FilterPersonnelWithTotalCount { data = result, total = (int)total };
         }
-        public async Task<UpdateResult> ResetAssignment(string dutyId)
+        public async Task<UpdateResult> ResetAssignment(string dutyId, int type)
         {
             var filter = Builders<IPersonalExcel>.Filter.And(
                 Builders<IPersonalExcel>.Filter.Exists(p => p.PaidDuties, true),
+                Builders<IPersonalExcel>.Filter.Eq(p => p.Type, type),
                 Builders<IPersonalExcel>.Filter.Type(p => p.PaidDuties, BsonType.Array),
                 // find records that have the dutyId in their PaidDuties array
                 Builders<IPersonalExcel>.Filter.AnyEq(p => p.PaidDuties, dutyId)
@@ -289,6 +292,12 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             var res = await _collection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
             return res != null && res.Contains("totalDutiesCount") ? res["totalDutiesCount"].AsInt32 : 0;
         }
-    }
 
+        public async Task<IEnumerable<IPersonalExcel>> GetAllPersonnelWithType(int type)
+        {
+            var filter = Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
+            return await _collection.Find(filter).ToListAsync();
+        }
+
+    }
 }
