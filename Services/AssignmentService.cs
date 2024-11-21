@@ -118,7 +118,7 @@ public class AssignmentService : IAssignmentService
         {
             // get dutyId in person
 
-            var assignment = await _assignmentRepository.GeAssignmentByDutyId(person.DutyId);
+            var assignment = await _assignmentRepository.GetAssignmentByDutyIdAndType(person.DutyId, 1);
             if (assignment.PaidPersonal.Count() == 0)
             {
                 await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList(), 1);
