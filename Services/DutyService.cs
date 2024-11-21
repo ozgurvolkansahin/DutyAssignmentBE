@@ -86,7 +86,7 @@ public class DutyService : IDutyService
             _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty, type);
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
-            if (type == (int)PersonnelTypeEnum.CEVIK || type == (int)PersonnelTypeEnum.SUBE)
+            if (type == (int)PersonnelTypeEnum.CEVIK)
             {
                 _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
                 _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
@@ -112,9 +112,9 @@ public class DutyService : IDutyService
             Type = type
         };
     }
-    private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel, int type = 1)
+    private async Task InsertPersonal(IEnumerable<IPersonalExcel> personalExcel, int type)
     {
-        var records = await _personalRepository.GetPersonalById(personalExcel.Select(x => x.Sicil).ToList());
+        var records = await _personalRepository.GetPersonalByIdAndType(personalExcel.Select(x => x.Sicil).ToList(), type);
         // we only want to insert records that do not exist in the database
         var notExistedPersonal = personalExcel.Where(x => !records.Any(y => y.Sicil == x.Sicil)).ToList();
         if (notExistedPersonal.Count() != 0)
@@ -145,7 +145,7 @@ public class DutyService : IDutyService
             AssignmentDate = dateTime,
             IsActive = false,
             // if type = 3 then all personnel are paid
-            PaidPersonal = type == (int)PersonnelTypeEnum.CEVIK || type == (int)PersonnelTypeEnum.SUBE ? personalInDuty.ResponsibleManagers.Concat(personalInDuty.PoliceAttendants).Select(x => x.Sicil).ToList() : new List<string>(),
+            PaidPersonal = type == (int)PersonnelTypeEnum.CEVIK ? personalInDuty.ResponsibleManagers.Concat(personalInDuty.PoliceAttendants).Select(x => x.Sicil).ToList() : new List<string>(),
         });
     }
     public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)
