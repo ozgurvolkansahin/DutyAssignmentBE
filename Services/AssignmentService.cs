@@ -178,7 +178,7 @@ public class AssignmentService : IAssignmentService
         else
         {
             // pick random people starting from the min value until the max value and select numToSelect people
-            for (int i = min; i < max; i++)
+            for (int i = min; i <= max; i++)
             {
                 selectedPeople = selectedPeople.Concat(personals
                     .Where(x => x.PaidDuties.Count() == i)
