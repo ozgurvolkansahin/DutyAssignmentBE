@@ -209,7 +209,7 @@ public class AssignmentService : IAssignmentService
         // add +1 because this may be their 3rd duty
         foreach (var x in personals)
         {
-            x.Priority = x.Duties.Count() >= (x.PaidDuties.Count() + 1) * 2 ? true : false;
+            x.Priority = 2 * x.Duties.Count() >= (x.PaidDuties.Count() + 1) * 3 ? true : false;
         }
         var prioritizedPersonnel = personals.Where(x => x.Priority == true).ToList();
         // if there are people with priority, select them first
