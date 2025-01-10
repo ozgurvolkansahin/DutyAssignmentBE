@@ -7,7 +7,7 @@ namespace DutyAssignment.Interfaces
 {
     public interface IDashboard : IEntity<string>
     {
-        SystemAdmins SystemAdmins  { get; set; }
+        SystemAdmins SystemAdmins { get; set; }
         [JsonIgnore]
         [BsonElement("name")]
         string Name { get; set; }
@@ -19,6 +19,8 @@ namespace DutyAssignment.Interfaces
         public required string BranchManager { get; set; }
         [BsonElement("Responsible")]
         public required string Responsible { get; set; }
+        [BsonElement("ResponsibleManager")]
+        public required string ResponsibleManager { get; set; }
     }
 
 }
