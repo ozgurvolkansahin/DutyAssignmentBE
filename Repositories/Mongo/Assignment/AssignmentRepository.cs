@@ -410,6 +410,15 @@ namespace DutyAssignment.Repositories.Mongo.Duty
         public async Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments)
         {
             var normalizedDes = filterAssignments.dutyDescription.ToUpper(new System.Globalization.CultureInfo("tr-TR"));
+            var matchStage = new BsonDocument("$match", new BsonDocument());
+
+            if (filterAssignments.type != 0)
+            {
+                matchStage = new BsonDocument("$match", new BsonDocument
+                {
+                    { "Type", new BsonDocument("$eq", filterAssignments.type) }
+                });
+            }
             var pipeline = new BsonDocument[]
             {
                     new BsonDocument("$match", new BsonDocument {
@@ -420,6 +429,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             {
                 { "DutyId", new BsonDocument("$regex", filterAssignments.dutyId) },
             }),
+            matchStage,
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "duty" },
@@ -482,6 +492,7 @@ namespace DutyAssignment.Repositories.Mongo.Duty
             {
                 { "DutyId", new BsonDocument("$regex", filterAssignments.dutyId) },
             }),
+            matchStage,
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "duty" },
