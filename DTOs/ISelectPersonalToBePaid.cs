@@ -13,6 +13,7 @@ namespace DutyAssignment.DTOs
     public interface IGetAssignedPersonalByDutyIdWithPaginationPostObject
     {
         string dutyId { get; set; }
+        bool isAll { get; set; }
         int page { get; set; }
         int pageSize { get; set; }
         int type { get; set; }

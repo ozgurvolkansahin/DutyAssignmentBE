@@ -47,9 +47,9 @@ public class AssignmentService : IAssignmentService
     {
         return await _assignmentRepository.GetAssignedPersonalByDutyIdWithPagination(dutyId, page, pageSize);
     }
-    public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdAndTypeWithPagination(string dutyId, int page, int pageSize, int type)
+    public async Task<IGetAssignedPersonalByDutyIdWithPaginationResult<IPersonalExcel>> GetAssignedPersonalByDutyIdAndTypeWithPagination(string dutyId, int page, int pageSize, int type, bool isAll)
     {
-        return await _assignmentRepository.GetAssignedPersonalByDutyIdAndTypeWithPagination(dutyId, page, pageSize, type);
+        return await _assignmentRepository.GetAssignedPersonalByDutyIdAndTypeWithPagination(dutyId, page, pageSize, type, isAll);
     }
     public async Task<IEnumerable<PersonalExcel>> SelectPersonalToBePaid(string duty, int numToSelect, bool reAssign, int type)
     {
@@ -77,7 +77,7 @@ public class AssignmentService : IAssignmentService
         // add them to selectedPeople
         var responsibleManagers = await _personalRepository.GetPersonalByIdAndType(assignment.ResponsibleManagers, type);
         List<PersonalExcel> selectedPeople = new List<PersonalExcel>();
-        if (type == (int)PersonnelTypeEnum.KADRO)
+        if (type == (int)PersonnelTypeEnum.KADRO || type == (int)PersonnelTypeEnum.CEVIK)
         {
             selectedPeople = SelectKadroPersonnelToBePaid(assignment, personals, responsibleManagers, numToSelect, type);
         }

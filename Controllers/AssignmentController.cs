@@ -33,7 +33,7 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
     [HttpPost("GetAssignedPersonalByDutyIdAndTypeWithPagination")]
     public async Task<OkObjectResult> GetAssignedPersonalByDutyIdAndTypeWithPagination([FromBody] GetAssignedPersonalByDutyIdWithPaginationPostObject getAssignedPersonalByDutyIdWithPaginationPostObject)
     {
-        return ApiResultOk(await Service.GetAssignedPersonalByDutyIdAndTypeWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize, getAssignedPersonalByDutyIdWithPaginationPostObject.type));
+        return ApiResultOk(await Service.GetAssignedPersonalByDutyIdAndTypeWithPagination(getAssignedPersonalByDutyIdWithPaginationPostObject.dutyId, getAssignedPersonalByDutyIdWithPaginationPostObject.page, getAssignedPersonalByDutyIdWithPaginationPostObject.pageSize, getAssignedPersonalByDutyIdWithPaginationPostObject.type, getAssignedPersonalByDutyIdWithPaginationPostObject.isAll));
     }
     [HttpGet("DownloadPersonalReportForSpecificDuty")]
     public async Task<IActionResult> DownloadPersonalReportForSpecificDuty([FromQuery] string dutyId, [FromQuery] int type)

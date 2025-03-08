@@ -14,6 +14,7 @@ namespace DutyAssignment.DTOs
     public class GetAssignedPersonalByDutyIdWithPaginationPostObject : IGetAssignedPersonalByDutyIdWithPaginationPostObject
     {
         public required string dutyId { get; set; }
+        public bool isAll { get; set; }
         public int page { get; set; }
         public int pageSize { get; set; }
         public int type { get; set; }
