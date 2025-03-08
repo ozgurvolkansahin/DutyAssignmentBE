@@ -17,6 +17,6 @@ namespace DutyAssignment.Services
         Task<byte[]> DownloadAllPersonnelWithType(int type);
         Task<FilterAssignmentsByFilter> FilterAssignments(FilterAssignments filterAssignments);
         Task<UpdateResult> ResetAssignment(string dutyId, int type);
-        Task<string> ProcessPaidDuties();
+        Task<string> ProcessPaidDuties(int type);
     }
 }

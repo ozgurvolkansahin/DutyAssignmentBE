@@ -111,19 +111,19 @@ public class AssignmentService : IAssignmentService
         await _personalRepository.ResetAssignment(dutyId, type);
         return await _assignmentRepository.ResetAssignment(dutyId, type);
     }
-    public async Task<string> ProcessPaidDuties()
+    public async Task<string> ProcessPaidDuties(int type)
     {
         var personnel = _excelService.ProcessPaymentFileExcelAndReturnPersonnel();
         foreach (var person in personnel)
         {
             // get dutyId in person
 
-            var assignment = await _assignmentRepository.GetAssignmentByDutyIdAndType(person.DutyId, 1);
+            var assignment = await _assignmentRepository.GetAssignmentByDutyIdAndType(person.DutyId, type);
             if (assignment.PaidPersonal.Count() == 0)
             {
-                await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList(), 1);
-                await _personalRepository.PushDutyIdToDutyArray(person.DutyId, person.Personnel.ToList(), 1);
-                await _personalRepository.PushDutyIdToPaidDutyArray(person.DutyId, person.Personnel.ToList(), 1);
+                await _assignmentRepository.SetAssignmentPaid(person.DutyId, person.Personnel.ToList(), type);
+                await _personalRepository.PushDutyIdToDutyArray(person.DutyId, person.Personnel.ToList(), type);
+                await _personalRepository.PushDutyIdToPaidDutyArray(person.DutyId, person.Personnel.ToList(), type);
             }
         }
         return personnel.Count().ToString();

@@ -86,11 +86,11 @@ public class DutyService : IDutyService
             _ = SaveAssignment(file.Split("-")[0].Trim(), personalInDuty, type);
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
             _ = _personalRepository.PushDutyIdToDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
-            if (type == (int)PersonnelTypeEnum.CEVIK)
-            {
-                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
-                _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
-            }
+            // if (type == (int)PersonnelTypeEnum.CEVIK)
+            // {
+            //     _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.ResponsibleManagers.Select(x => x.Sicil).ToList(), type);
+            //     _ = _personalRepository.PushDutyIdToPaidDutyArray(file.Split("-")[0].Trim(), personalInDuty.PoliceAttendants.Select(x => x.Sicil).ToList(), type);
+            // }
             duties.Add(CreateProcessedDutyObject(file, type));
         }
         return duties;
@@ -144,8 +144,10 @@ public class DutyService : IDutyService
             LastUpdate = dateTime,
             AssignmentDate = dateTime,
             IsActive = false,
-            // if type = 3 then all personnel are paid
-            PaidPersonal = type == (int)PersonnelTypeEnum.CEVIK ? personalInDuty.ResponsibleManagers.Concat(personalInDuty.PoliceAttendants).Select(x => x.Sicil).ToList() : new List<string>(),
+            // // if type = 3 then all personnel are paid
+            // PaidPersonal = type == (int)PersonnelTypeEnum.CEVIK ? personalInDuty.ResponsibleManagers.Concat(personalInDuty.PoliceAttendants).Select(x => x.Sicil).ToList() : new List<string>(),
+            PaidPersonal = new List<string>(),
+
         });
     }
     public async Task<IEnumerable<PeopleCount>> GetOccurrencesOfSpecificValues(BsonArray specificValues)

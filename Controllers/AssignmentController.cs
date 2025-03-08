@@ -62,8 +62,8 @@ public class AssignmentController : BaseController<AssignmentController, IAssign
         return ApiResultOk(await Service.ResetAssignment(dutyId, type));
     }
     [HttpGet("ProcessPaidDuties")]
-    public async Task<OkObjectResult> ProcessPaidDuties()
+    public async Task<OkObjectResult> ProcessPaidDuties([FromQuery] int type)
     {
-        return ApiResultOk(await Service.ProcessPaidDuties());
+        return ApiResultOk(await Service.ProcessPaidDuties(type));
     }
 }
