@@ -13,5 +13,6 @@ namespace DutyAssignment.Repositories.Mongo
         Task UpdateAsync(TId id, TEntity entity);
         Task UpdateManyAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update);
         Task DeleteAsync(TId id);
+        Task BulkWriteAsync(IEnumerable<WriteModel<TEntity>> requests);
     }
 }

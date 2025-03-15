@@ -117,6 +117,34 @@ public class DutyService : IDutyService
         var records = await _personalRepository.GetPersonalByIdAndType(personalExcel.Select(x => x.Sicil).ToList(), type);
         // we only want to insert records that do not exist in the database
         var notExistedPersonal = personalExcel.Where(x => !records.Any(y => y.Sicil == x.Sicil)).ToList();
+        var existedPersonal = personalExcel.Where(x => records.Any(y => y.Sicil == x.Sicil)).ToList();
+        var updateModels = new List<WriteModel<IPersonalExcel>>();
+
+        foreach (var personal in existedPersonal)
+        {
+            var record = records.FirstOrDefault(x => x.Sicil == personal.Sicil);
+            if (record == null) continue;
+
+            if (record.Rutbe != personal.Rutbe || record.Birim != personal.Birim || record.Nokta != personal.Nokta || record.Grup != personal.Grup || record.Tel != personal.Tel || record.Iban != personal.Iban)
+            {
+                var filter = Builders<IPersonalExcel>.Filter.Eq(x => x.Sicil, personal.Sicil);
+                filter &= Builders<IPersonalExcel>.Filter.Eq(x => x.Type, type);
+                var update = Builders<IPersonalExcel>.Update
+                    .Set(x => x.Rutbe, personal.Rutbe)
+                    .Set(x => x.Birim, personal.Birim)
+                    .Set(x => x.Nokta, personal.Nokta)
+                    .Set(x => x.Grup, personal.Grup)
+                    .Set(x => x.Tel, personal.Tel)
+                    .Set(x => x.Iban, personal.Iban);
+
+                updateModels.Add(new UpdateOneModel<IPersonalExcel>(filter, update));
+            }
+        }
+
+        if (updateModels.Count > 0)
+        {
+            await _personalRepository.BulkWriteAsync(updateModels);
+        }
         if (notExistedPersonal.Count() != 0)
         {
             // set type

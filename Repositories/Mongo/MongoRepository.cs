@@ -31,7 +31,8 @@ namespace DutyAssignment.Repositories.Mongo
             return Convert.ToInt32(await _collection.CountDocumentsAsync(_ => true));
         }
 
-        public async Task InsertManyAsync(IEnumerable<TEntity> entities) {
+        public async Task InsertManyAsync(IEnumerable<TEntity> entities)
+        {
             await _collection.InsertManyAsync(entities);
         }
 
@@ -52,6 +53,10 @@ namespace DutyAssignment.Repositories.Mongo
         public async Task DeleteAsync(TId id)
         {
             await _collection.DeleteOneAsync(x => x.Id!.Equals(id));
+        }
+        public async Task BulkWriteAsync(IEnumerable<WriteModel<TEntity>> requests)
+        {
+            await _collection.BulkWriteAsync(requests);
         }
 
         public void Dispose()
